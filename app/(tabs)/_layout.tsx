@@ -1,6 +1,8 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
+import { NotificationBadge } from "../../components/ui/NotificationBadge";
+import { View } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -43,6 +45,18 @@ export default function TabLayout() {
           title: "Orders",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="receipt" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: "Notifications",
+          tabBarIcon: ({ color, size }) => (
+            <View style={{ position: "relative" }}>
+              <Ionicons name="notifications" size={size} color={color} />
+              <NotificationBadge size="small" />
+            </View>
           ),
         }}
       />

@@ -11,17 +11,27 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useOrders, useUpdateOrderStatus } from "../../hooks/useOrders";
+import { useNotificationRealtime } from "../../hooks/useNotifications";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { OrderStatus } from "../../lib/supabase";
 
 export default function OrdersScreen() {
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">("all");
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">(
+    "all"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data: orders, isLoading, refetch } = useOrders(selectedStatus === "all" ? undefined : selectedStatus);
+  const {
+    data: orders,
+    isLoading,
+    refetch,
+  } = useOrders(selectedStatus === "all" ? undefined : selectedStatus);
   const updateStatusMutation = useUpdateOrderStatus();
+
+  // Enable real-time notification updates
+  useNotificationRealtime();
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -29,35 +39,45 @@ export default function OrdersScreen() {
     setRefreshing(false);
   };
 
-  const filteredOrders = orders?.filter(order => 
-    searchQuery === "" || 
-    order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.table_number.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredOrders =
+    orders?.filter(
+      (order) =>
+        searchQuery === "" ||
+        order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.table_number.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-      case "New": return "#3b82f6";
-      case "Preparing": return "#f59e0b";
-      case "Ready": return "#10b981";
-      default: return "#64748b";
+      case "New":
+        return "#3b82f6";
+      case "Preparing":
+        return "#f59e0b";
+      case "Ready":
+        return "#10b981";
+      default:
+        return "#64748b";
     }
   };
 
   const getStatusIcon = (status: OrderStatus) => {
     switch (status) {
-      case "New": return "add-circle";
-      case "Preparing": return "time";
-      case "Ready": return "checkmark-circle";
-      default: return "help-circle";
+      case "New":
+        return "add-circle";
+      case "Preparing":
+        return "time";
+      case "Ready":
+        return "checkmark-circle";
+      default:
+        return "help-circle";
     }
   };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("en-GB", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -65,7 +85,10 @@ export default function OrdersScreen() {
     return `£${price.toFixed(2)}`;
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+  const handleStatusUpdate = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
     try {
       await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
     } catch (error) {
@@ -73,18 +96,28 @@ export default function OrdersScreen() {
     }
   };
 
-  const StatusFilter = ({ status, label, count }: { status: OrderStatus | "all"; label: string; count?: number }) => (
+  const StatusFilter = ({
+    status,
+    label,
+    count,
+  }: {
+    status: OrderStatus | "all";
+    label: string;
+    count?: number;
+  }) => (
     <TouchableOpacity
       style={[
         styles.statusFilter,
-        selectedStatus === status && styles.statusFilterActive
+        selectedStatus === status && styles.statusFilterActive,
       ]}
       onPress={() => setSelectedStatus(status)}
     >
-      <Text style={[
-        styles.statusFilterText,
-        selectedStatus === status && styles.statusFilterTextActive
-      ]}>
+      <Text
+        style={[
+          styles.statusFilterText,
+          selectedStatus === status && styles.statusFilterTextActive,
+        ]}
+      >
         {label}
       </Text>
       {count !== undefined && (
@@ -104,35 +137,39 @@ export default function OrdersScreen() {
           <Text style={styles.orderTime}>{formatTime(order.created_at)}</Text>
         </View>
         <View style={styles.orderStatus}>
-          <Ionicons 
-            name={getStatusIcon(order.status)} 
-            size={20} 
-            color={getStatusColor(order.status)} 
+          <Ionicons
+            name={getStatusIcon(order.status)}
+            size={20}
+            color={getStatusColor(order.status)}
           />
-          <Text style={[styles.statusText, { color: getStatusColor(order.status) }]}>
+          <Text
+            style={[styles.statusText, { color: getStatusColor(order.status) }]}
+          >
             {order.status}
           </Text>
         </View>
       </View>
-      
+
       <View style={styles.orderDetails}>
         <Text style={styles.itemCount}>{order.item_count} items</Text>
         <Text style={styles.orderTotal}>{formatPrice(order.total_amount)}</Text>
       </View>
-      
+
       {order.notes && (
         <View style={styles.notesContainer}>
           <Text style={styles.notesLabel}>Notes:</Text>
           <Text style={styles.notesText}>{order.notes}</Text>
         </View>
       )}
-      
+
       <View style={styles.orderActions}>
         <Button
           title="View Details"
           variant="outline"
           size="small"
-          onPress={() => {/* Navigate to order details */}}
+          onPress={() => {
+            /* Navigate to order details */
+          }}
         />
         {order.status === "New" && (
           <Button
@@ -170,7 +207,12 @@ export default function OrdersScreen() {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
-          <Ionicons name="search" size={20} color="#64748b" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={20}
+            color="#64748b"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Search orders by number or table..."
@@ -189,9 +231,21 @@ export default function OrdersScreen() {
         contentContainerStyle={styles.filtersContent}
       >
         <StatusFilter status="all" label="All" count={orders?.length} />
-        <StatusFilter status="New" label="New" count={orders?.filter(o => o.status === "New").length} />
-        <StatusFilter status="Preparing" label="Preparing" count={orders?.filter(o => o.status === "Preparing").length} />
-        <StatusFilter status="Ready" label="Ready" count={orders?.filter(o => o.status === "Ready").length} />
+        <StatusFilter
+          status="New"
+          label="New"
+          count={orders?.filter((o) => o.status === "New").length}
+        />
+        <StatusFilter
+          status="Preparing"
+          label="Preparing"
+          count={orders?.filter((o) => o.status === "Preparing").length}
+        />
+        <StatusFilter
+          status="Ready"
+          label="Ready"
+          count={orders?.filter((o) => o.status === "Ready").length}
+        />
       </ScrollView>
 
       {/* Orders List */}
@@ -214,10 +268,9 @@ export default function OrdersScreen() {
             <Ionicons name="receipt-outline" size={48} color="#64748b" />
             <Text style={styles.emptyTitle}>No orders found</Text>
             <Text style={styles.emptySubtitle}>
-              {searchQuery 
-                ? "No orders match your search" 
-                : `No ${selectedStatus.toLowerCase()} orders`
-              }
+              {searchQuery
+                ? "No orders match your search"
+                : `No ${selectedStatus.toLowerCase()} orders`}
             </Text>
           </Card>
         )}
@@ -415,4 +468,4 @@ const styles = StyleSheet.create({
   actionButton: {
     marginLeft: 8,
   },
-}); 
+});

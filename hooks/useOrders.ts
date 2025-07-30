@@ -13,7 +13,8 @@ import * as Haptics from "expo-haptics";
 export const orderKeys = {
   all: ["orders"] as const,
   lists: () => [...orderKeys.all, "list"] as const,
-  list: (filters: string) => [...orderKeys.lists(), { filters }] as const,
+  list: (filters: string, branchId?: string) =>
+    [...orderKeys.lists(), { filters, branchId }] as const,
   details: () => [...orderKeys.all, "detail"] as const,
   detail: (id: string) => [...orderKeys.details(), id] as const,
 };
@@ -23,12 +24,29 @@ export const useOrders = (status?: OrderStatus) => {
   const { branch } = useAuth();
 
   return useQuery({
-    queryKey: orderKeys.list(status || "all"),
+    queryKey: orderKeys.list(status || "all", branch?.id),
     queryFn: async () => {
+      if (!branch?.id) return [];
+
       let query = supabase
-        .from("order_details")
-        .select("*")
-        .eq("branch_name", branch?.name);
+        .from("orders")
+        .select(
+          `
+          *,
+          order_items (
+            id,
+            quantity,
+            unit_price,
+            total_price,
+            special_instructions,
+            menu_items (
+              name,
+              description
+            )
+          )
+        `
+        )
+        .eq("branch_id", branch.id);
 
       if (status && status !== "all") {
         query = query.eq("status", status);
@@ -39,23 +57,55 @@ export const useOrders = (status?: OrderStatus) => {
       });
 
       if (error) throw error;
-      return data;
+
+      console.log(
+        `[useOrders] Fetched ${data?.length || 0} orders for branch ${
+          branch.id
+        }`
+      );
+
+      // Transform data to match expected format
+      return (
+        data?.map((order) => ({
+          ...order,
+          item_count: order.order_items?.length || 0,
+          total_amount: order.total_amount || 0,
+        })) || []
+      );
     },
-    enabled: !!branch,
+    enabled: !!branch?.id,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 };
 
 // Fetch single order with items
 export const useOrder = (orderId: string) => {
+  const { branch } = useAuth();
+
   return useQuery({
     queryKey: orderKeys.detail(orderId),
     queryFn: async () => {
+      if (!branch?.id) throw new Error("No branch context");
+
       const [orderResult, itemsResult] = await Promise.all([
-        supabase.from("order_details").select("*").eq("id", orderId).single(),
         supabase
-          .from("order_items_details")
+          .from("orders")
           .select("*")
+          .eq("id", orderId)
+          .eq("branch_id", branch.id)
+          .single(),
+        supabase
+          .from("order_items")
+          .select(
+            `
+            *,
+            menu_items (
+              name,
+              description,
+              price
+            )
+          `
+          )
           .eq("order_id", orderId),
       ]);
 
@@ -67,7 +117,7 @@ export const useOrder = (orderId: string) => {
         items: itemsResult.data,
       };
     },
-    enabled: !!orderId,
+    enabled: !!orderId && !!branch?.id,
   });
 };
 
@@ -166,6 +216,7 @@ export const useCreateOrder = () => {
 // Update order status
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
+  const { branch } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -175,6 +226,10 @@ export const useUpdateOrderStatus = () => {
       orderId: string;
       status: OrderStatus;
     }) => {
+      if (!branch?.id) {
+        throw new Error("No valid branch found");
+      }
+
       const { data, error } = await supabase
         .from("orders")
         .update({
@@ -182,6 +237,7 @@ export const useUpdateOrderStatus = () => {
           ready_at: status === "Ready" ? new Date().toISOString() : null,
         })
         .eq("id", orderId)
+        .eq("branch_id", branch.id)
         .select()
         .single();
 
@@ -219,7 +275,10 @@ export const useOrderRealtime = () => {
           filter: `branch_id=eq.${branch.id}`,
         },
         (payload) => {
-          console.log("Order change:", payload);
+          console.log(
+            `[useOrderRealtime] Order change for branch ${branch.id}:`,
+            payload
+          );
 
           // Invalidate queries to refetch data
           queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
@@ -252,10 +311,12 @@ export const useOrderStats = () => {
   return useQuery({
     queryKey: ["order-stats", branch?.id],
     queryFn: async () => {
+      if (!branch?.id) return { total: 0, new: 0, preparing: 0, ready: 0 };
+
       const { data, error } = await supabase
-        .from("order_details")
+        .from("orders")
         .select("status, created_at")
-        .eq("branch_name", branch?.name)
+        .eq("branch_id", branch.id)
         .gte(
           "created_at",
           new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -272,7 +333,7 @@ export const useOrderStats = () => {
 
       return stats;
     },
-    enabled: !!branch,
+    enabled: !!branch?.id,
     refetchInterval: 60000, // Refetch every minute
   });
 };
