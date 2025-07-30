@@ -1,50 +1,235 @@
-# Welcome to your Expo app 👋
+# Taste of Peshawar - Restaurant Management System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, high-performance restaurant order management system built with React Native and Supabase, designed specifically for tablet use in restaurant environments.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+### Core Functionality
 
-   ```bash
-   npm install
-   ```
+- **Branch-based Authentication**: Secure login for Cardiff and Wembley branches
+- **Real-time Order Management**: Live updates across all tablets
+- **Menu Management**: Complete menu with categories, search, and filtering
+- **Order Creation**: Intuitive cart-based order building
+- **Status Tracking**: New → Preparing → Ready workflow
+- **Statistics Dashboard**: Real-time order statistics and analytics
 
-2. Start the app
+### Technical Features
 
-   ```bash
-   npx expo start
-   ```
+- **TypeScript**: Full type safety throughout the application
+- **React Query**: Optimized data fetching and caching
+- **Supabase Realtime**: Live updates and notifications
+- **Touch-optimized UI**: Designed for tablet use with large touch targets
+- **Modern Design**: Clean, professional interface with smooth animations
+- **Offline Support**: Graceful handling of network issues
 
-In the output, you'll find options to open the app in a
+## 🛠️ Setup Instructions
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Node.js 18+
+- Expo CLI
+- Supabase account
 
-## Get a fresh project
-
-When you're ready, run:
+### 1. Install Dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Environment Configuration
 
-## Learn more
+Create a `.env` file in the root directory:
 
-To learn more about developing your project with Expo, look at the following resources:
+```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. Database Setup
 
-## Join the community
+Run the provided SQL schema in your Supabase project:
 
-Join our community of developers creating universal apps.
+```sql
+-- Copy and paste the complete schema from the requirements
+-- This includes all tables, RLS policies, functions, and initial data
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 4. Create Branch Users
+
+After setting up the database, create users through Supabase Auth and link them to branches:
+
+```sql
+-- Example: Create a Cardiff branch user
+INSERT INTO branch_users (id, branch_id, full_name, role)
+VALUES (
+    'USER_UUID_FROM_AUTH',
+    (SELECT id FROM branches WHERE name = 'Cardiff'),
+    'Cardiff Manager',
+    'manager'
+);
+```
+
+### 5. Start Development
+
+```bash
+npm start
+```
+
+## 📱 Usage
+
+### Login
+
+1. Select your branch (Cardiff or Wembley)
+2. Enter your credentials
+3. System automatically detects your branch permissions
+
+### Dashboard
+
+- View real-time order statistics
+- Filter orders by status (New, Preparing, Ready)
+- Quick status updates with one-tap actions
+- Pull to refresh for latest data
+
+### Menu
+
+- Browse menu by categories
+- Search for specific items
+- Add items to cart with quantity controls
+- View vegetarian/vegan indicators
+- Create orders with table numbers
+
+## 🏗️ Architecture
+
+### Frontend
+
+- **React Native** with Expo
+- **TypeScript** for type safety
+- **React Query** for data management
+- **Expo Router** for navigation
+- **Custom UI Components** for consistency
+
+### Backend
+
+- **Supabase** for database and authentication
+- **PostgreSQL** with Row Level Security
+- **Real-time subscriptions** for live updates
+- **Custom functions** for business logic
+
+### Database Schema
+
+- **Branches**: Cardiff and Wembley locations
+- **Menu Items**: Complete menu with categories
+- **Orders**: Order management with status tracking
+- **Users**: Branch-specific user management
+- **Notifications**: Real-time alerts and updates
+
+## 🎨 Design System
+
+### Colors
+
+- Primary: `#3b82f6` (Blue)
+- Success: `#10b981` (Green)
+- Warning: `#f59e0b` (Orange)
+- Danger: `#ef4444` (Red)
+- Neutral: `#64748b` (Gray)
+
+### Components
+
+- **Button**: Multiple variants and sizes
+- **Card**: Elevated, outlined, and flat styles
+- **Input**: Search and form inputs
+- **Status Indicators**: Color-coded order status
+
+## 🔧 Configuration
+
+### Supabase Setup
+
+1. Create a new Supabase project
+2. Enable Row Level Security (RLS)
+3. Run the provided SQL schema
+4. Configure authentication settings
+5. Set up real-time subscriptions
+
+### Environment Variables
+
+- `EXPO_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+## 📊 Performance Optimizations
+
+- **React Query**: Intelligent caching and background updates
+- **Lazy Loading**: Menu items loaded on demand
+- **Debounced Search**: Efficient search with minimal API calls
+- **Optimistic Updates**: Immediate UI feedback
+- **Connection Handling**: Graceful offline/online transitions
+
+## 🔒 Security
+
+- **Row Level Security**: Branch-specific data isolation
+- **Authentication**: Secure user management
+- **Input Validation**: Client and server-side validation
+- **Error Handling**: Graceful error recovery
+
+## 🚀 Deployment
+
+### Development
+
+```bash
+npm start
+```
+
+### Production Build
+
+```bash
+expo build:android
+expo build:ios
+```
+
+### EAS Build
+
+```bash
+eas build --platform all
+```
+
+## 📝 API Documentation
+
+### Orders
+
+- `GET /orders` - Fetch orders for current branch
+- `POST /orders` - Create new order
+- `PUT /orders/:id` - Update order status
+- `GET /orders/:id` - Get order details
+
+### Menu
+
+- `GET /menu` - Fetch menu items
+- `GET /menu/categories` - Fetch categories
+- `GET /menu/search` - Search menu items
+
+### Statistics
+
+- `GET /stats` - Get order statistics
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software for Taste of Peshawar restaurant.
+
+## 🆘 Support
+
+For technical support or questions:
+
+- Check the documentation
+- Review the code comments
+- Contact the development team
+
+---
+
+**Built with ❤️ for Taste of Peshawar**
