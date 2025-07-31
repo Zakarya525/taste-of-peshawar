@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Theme } from '../../constants/Colors';
 
 interface StatusBadgeProps {
   status: 'New' | 'Preparing' | 'Ready' | 'Completed';
@@ -20,125 +19,91 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (status) {
       case 'New':
         return {
-          color: Colors.primary[500],
-          backgroundColor: Colors.primary[50],
+          bgColor: 'bg-primary-50',
+          textColor: 'text-primary-500',
           icon: 'add-circle',
           text: 'New',
         };
       case 'Preparing':
         return {
-          color: Colors.warning[500],
-          backgroundColor: Colors.warning[50],
+          bgColor: 'bg-warning-50',
+          textColor: 'text-warning-500',
           icon: 'time',
           text: 'Preparing',
         };
       case 'Ready':
         return {
-          color: Colors.success[500],
-          backgroundColor: Colors.success[50],
+          bgColor: 'bg-success-50',
+          textColor: 'text-success-500',
           icon: 'checkmark-circle',
           text: 'Ready',
         };
       case 'Completed':
         return {
-          color: Colors.neutral[500],
-          backgroundColor: Colors.neutral[100],
+          bgColor: 'bg-neutral-100',
+          textColor: 'text-neutral-500',
           icon: 'checkmark-done',
           text: 'Completed',
         };
       default:
         return {
-          color: Colors.neutral[500],
-          backgroundColor: Colors.neutral[100],
+          bgColor: 'bg-neutral-100',
+          textColor: 'text-neutral-500',
           icon: 'help-circle',
           text: status,
         };
     }
   };
 
-  const config = getStatusConfig();
-
-  const getSizeConfig = () => {
+  const getSizeClasses = () => {
     switch (size) {
       case 'small':
         return {
-          padding: Theme.spacing.xs,
-          fontSize: Theme.typography.fontSize.xs,
+          container: 'px-1 py-0.5 rounded-sm',
+          text: 'text-xs',
           iconSize: 12,
-          borderRadius: Theme.borderRadius.sm,
         };
       case 'medium':
         return {
-          padding: Theme.spacing.sm,
-          fontSize: Theme.typography.fontSize.sm,
+          container: 'px-2 py-1 rounded-md',
+          text: 'text-sm',
           iconSize: 14,
-          borderRadius: Theme.borderRadius.md,
         };
       case 'large':
         return {
-          padding: Theme.spacing.md,
-          fontSize: Theme.typography.fontSize.md,
+          container: 'px-4 py-2 rounded-lg',
+          text: 'text-base',
           iconSize: 16,
-          borderRadius: Theme.borderRadius.lg,
         };
       default:
         return {
-          padding: Theme.spacing.sm,
-          fontSize: Theme.typography.fontSize.sm,
+          container: 'px-2 py-1 rounded-md',
+          text: 'text-sm',
           iconSize: 14,
-          borderRadius: Theme.borderRadius.md,
         };
     }
   };
 
-  const sizeConfig = getSizeConfig();
+  const config = getStatusConfig();
+  const sizeClasses = getSizeClasses();
 
   return (
     <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: config.backgroundColor,
-          paddingHorizontal: sizeConfig.padding,
-          paddingVertical: sizeConfig.padding / 2,
-          borderRadius: sizeConfig.borderRadius,
-        },
-      ]}
+      className={`flex-row items-center justify-center ${config.bgColor} ${sizeClasses.container}`}
     >
       {showIcon && (
         <Ionicons
           name={config.icon as any}
-          size={sizeConfig.iconSize}
-          color={config.color}
-          style={styles.icon}
+          size={sizeClasses.iconSize}
+          color={config.textColor.replace('text-', '').split('-').join('-')}
+          className="mr-1"
         />
       )}
       <Text
-        style={[
-          styles.text,
-          {
-            color: config.color,
-            fontSize: sizeConfig.fontSize,
-            fontWeight: Theme.typography.fontWeight.medium,
-          },
-        ]}
+        className={`text-center font-medium ${config.textColor} ${sizeClasses.text}`}
       >
         {config.text}
       </Text>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    marginRight: Theme.spacing.xs,
-  },
-  text: {
-    textAlign: 'center',
-  },
-}); 
+}; 

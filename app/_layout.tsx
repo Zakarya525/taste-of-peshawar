@@ -6,6 +6,7 @@ import { LoadingScreen } from "../components/ui/LoadingScreen";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { NotificationService } from "../lib/notifications";
 import { queryClient } from "../lib/queryClient";
+import "../global.css";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

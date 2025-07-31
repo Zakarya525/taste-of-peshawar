@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { useNotifications } from "../../hooks/useNotifications";
 
 interface NotificationBadgeProps {
@@ -15,43 +15,37 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
 
   if (unreadCount === 0) return null;
 
-  const getBadgeSize = () => {
+  const getBadgeClasses = () => {
+    const baseClasses = "bg-error-500 rounded-full justify-center items-center absolute -top-1 -right-1 min-w-4 min-h-4";
+    
     switch (size) {
       case "small":
-        return { width: 16, height: 16, fontSize: 10 };
+        return `${baseClasses} w-4 h-4`;
       case "large":
-        return { width: 24, height: 24, fontSize: 14 };
+        return `${baseClasses} w-6 h-6`;
       default:
-        return { width: 20, height: 20, fontSize: 12 };
+        return `${baseClasses} w-5 h-5`;
     }
   };
 
-  const badgeStyle = getBadgeSize();
+  const getTextClasses = () => {
+    const baseClasses = "text-white font-bold text-center";
+    
+    switch (size) {
+      case "small":
+        return `${baseClasses} text-xs`;
+      case "large":
+        return `${baseClasses} text-sm`;
+      default:
+        return `${baseClasses} text-xs`;
+    }
+  };
 
   return (
-    <View style={[styles.badge, badgeStyle]}>
-      <Text style={[styles.badgeText, { fontSize: badgeStyle.fontSize }]}>
+    <View className={getBadgeClasses()}>
+      <Text className={getTextClasses()}>
         {unreadCount > 99 ? "99+" : unreadCount}
       </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  badge: {
-    backgroundColor: "#ef4444",
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    top: -5,
-    right: -5,
-    minWidth: 16,
-    minHeight: 16,
-  },
-  badgeText: {
-    color: "#ffffff",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-});

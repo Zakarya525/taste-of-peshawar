@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -88,14 +87,15 @@ export default function MenuScreen() {
     isSelected: boolean;
   }) => (
     <TouchableOpacity
-      style={[styles.categoryTab, isSelected && styles.categoryTabActive]}
+      className={`px-4 py-2 rounded-full ${
+        isSelected ? "bg-blue-600" : "bg-gray-200"
+      }`}
       onPress={() => setSelectedCategory(category)}
     >
       <Text
-        style={[
-          styles.categoryTabText,
-          isSelected && styles.categoryTabTextActive,
-        ]}
+        className={`text-sm font-medium ${
+          isSelected ? "text-white" : "text-gray-700"
+        }`}
       >
         {category}
       </Text>
@@ -104,27 +104,33 @@ export default function MenuScreen() {
 
   const MenuItemCard = ({ item }: { item: MenuItem }) => (
     <Card variant="default" padding="medium" margin="small">
-      <View style={styles.menuItemHeader}>
-        <View style={styles.menuItemInfo}>
-          <Text style={styles.menuItemName}>{item.name}</Text>
+      <View className="flex-row justify-between items-start">
+        <View className="flex-1 mr-4">
+          <Text className="text-base font-semibold text-gray-900 mb-2">
+            {item.name}
+          </Text>
           {item.description && (
-            <Text style={styles.menuItemDescription}>{item.description}</Text>
+            <Text className="text-sm text-gray-600 mb-2">
+              {item.description}
+            </Text>
           )}
-          <View style={styles.menuItemBadges}>
+          <View className="flex-row gap-2">
             {item.is_vegetarian && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>V</Text>
+              <View className="bg-green-500 px-3 py-1 rounded-md">
+                <Text className="text-xs font-bold text-white">V</Text>
               </View>
             )}
             {item.is_vegan && (
-              <View style={[styles.badge, styles.veganBadge]}>
-                <Text style={styles.badgeText}>VG</Text>
+              <View className="bg-purple-600 px-3 py-1 rounded-md">
+                <Text className="text-xs font-bold text-white">VG</Text>
               </View>
             )}
           </View>
         </View>
-        <View style={styles.menuItemPrice}>
-          <Text style={styles.priceText}>£{item.price.toFixed(2)}</Text>
+        <View className="items-end">
+          <Text className="text-base font-bold text-gray-900 mb-2">
+            £{item.price.toFixed(2)}
+          </Text>
           <Button
             title="Add"
             variant="primary"
@@ -137,23 +143,27 @@ export default function MenuScreen() {
   );
 
   const CartItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.cartItem}>
-      <View style={styles.cartItemInfo}>
-        <Text style={styles.cartItemName}>{item.menuItem.name}</Text>
-        <Text style={styles.cartItemPrice}>
+    <View className="flex-row justify-between items-center py-4 border-b border-gray-200">
+      <View className="flex-1">
+        <Text className="text-base font-medium text-gray-900">
+          {item.menuItem.name}
+        </Text>
+        <Text className="text-sm text-gray-600 mt-1">
           £{(item.menuItem.price * item.quantity).toFixed(2)}
         </Text>
       </View>
-      <View style={styles.cartItemActions}>
+      <View className="flex-row items-center gap-4">
         <TouchableOpacity
-          style={styles.quantityButton}
+          className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center"
           onPress={() => updateQuantity(item.menuItem.id, item.quantity - 1)}
         >
           <Ionicons name="remove" size={16} color="#ef4444" />
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
+        <Text className="text-base font-semibold text-gray-900 min-w-[20px] text-center">
+          {item.quantity}
+        </Text>
         <TouchableOpacity
-          style={styles.quantityButton}
+          className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center"
           onPress={() => updateQuantity(item.menuItem.id, item.quantity + 1)}
         >
           <Ionicons name="add" size={16} color="#10b981" />
@@ -163,17 +173,19 @@ export default function MenuScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Menu</Text>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <View className="flex-row justify-between items-center px-4 py-4 bg-white border-b border-gray-200">
+        <Text className="text-2xl font-bold text-gray-900">Menu</Text>
         <TouchableOpacity
-          style={styles.cartButton}
+          className="relative p-2"
           onPress={() => setShowCart(!showCart)}
         >
           <Ionicons name="cart" size={24} color="#3b82f6" />
           {totalItems > 0 && (
-            <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>{totalItems}</Text>
+            <View className="absolute top-0 right-0 bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center">
+              <Text className="text-white text-xs font-bold">
+                {totalItems}
+              </Text>
             </View>
           )}
         </TouchableOpacity>
@@ -182,16 +194,16 @@ export default function MenuScreen() {
       {!showCart ? (
         <>
           {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <View style={styles.searchInputContainer}>
+          <View className="px-4 py-4">
+            <View className="flex-row items-center bg-white rounded-lg p-4 min-h-12 shadow-sm">
               <Ionicons
                 name="search"
                 size={20}
                 color="#64748b"
-                style={styles.searchIcon}
+                className="mr-3"
               />
               <TextInput
-                style={styles.searchInput}
+                className="flex-1 text-base text-gray-900"
                 placeholder="Search menu items..."
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -204,23 +216,24 @@ export default function MenuScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.categoriesContainer}
-            contentContainerStyle={styles.categoriesContent}
+            className="bg-white border-b border-gray-200"
           >
-            {categories.map((category) => (
-              <CategoryTab
-                key={category}
-                category={category}
-                isSelected={selectedCategory === category}
-              />
-            ))}
+            <View className="flex-row px-4 py-3">
+              {categories.map((category) => (
+                <CategoryTab
+                  key={category}
+                  category={category}
+                  isSelected={selectedCategory === category}
+                />
+              ))}
+            </View>
           </ScrollView>
 
           {/* Menu Items */}
-          <ScrollView style={styles.menuContainer}>
+          <ScrollView className="px-4">
             {isLoading ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>Loading menu...</Text>
+              <View className="flex items-center py-10">
+                <Text className="text-base text-gray-600">Loading menu...</Text>
               </View>
             ) : displayData ? (
               displayData
@@ -230,17 +243,21 @@ export default function MenuScreen() {
                 )
                 .map((category) => (
                   <View key={category.name}>
-                    <Text style={styles.categoryTitle}>{category.name}</Text>
+                    <Text className="text-xl font-bold text-gray-900 mb-6 mt-6">
+                      {category.name}
+                    </Text>
                     {category.items.map((item) => (
                       <MenuItemCard key={item.id} item={item} />
                     ))}
                   </View>
                 ))
             ) : (
-              <View style={styles.emptyContainer}>
+              <View className="flex items-center py-10">
                 <Ionicons name="restaurant-outline" size={48} color="#64748b" />
-                <Text style={styles.emptyTitle}>No menu items</Text>
-                <Text style={styles.emptySubtitle}>
+                <Text className="text-lg font-semibold text-gray-900 mt-6">
+                  No menu items
+                </Text>
+                <Text className="text-base text-gray-600 mt-2">
                   Menu items will appear here
                 </Text>
               </View>
@@ -249,32 +266,38 @@ export default function MenuScreen() {
         </>
       ) : (
         /* Cart View */
-        <View style={styles.cartContainer}>
-          <View style={styles.cartHeader}>
-            <Text style={styles.cartTitle}>Your Order</Text>
+        <View className="flex-1">
+          <View className="flex-row justify-between items-center px-4 py-4 bg-white border-b border-gray-200">
+            <Text className="text-xl font-bold text-gray-900">Your Order</Text>
             <TouchableOpacity onPress={clearCart}>
-              <Text style={styles.clearCartText}>Clear</Text>
+              <Text className="text-base text-red-500 font-medium">Clear</Text>
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.cartItemsContainer}>
+          <ScrollView className="px-4">
             {cart.length > 0 ? (
               cart.map((item) => (
                 <CartItem key={item.menuItem.id} item={item} />
               ))
             ) : (
-              <View style={styles.emptyCart}>
+              <View className="flex items-center py-10">
                 <Ionicons name="cart-outline" size={48} color="#64748b" />
-                <Text style={styles.emptyCartText}>Your cart is empty</Text>
+                <Text className="text-base text-gray-600 mt-6">
+                  Your cart is empty
+                </Text>
               </View>
             )}
           </ScrollView>
 
           {cart.length > 0 && (
-            <View style={styles.cartFooter}>
-              <View style={styles.cartTotal}>
-                <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalPrice}>£{totalPrice.toFixed(2)}</Text>
+            <View className="px-4 py-4 bg-white border-t border-gray-200">
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-xl font-semibold text-gray-900">
+                  Total
+                </Text>
+                <Text className="text-2xl font-bold text-gray-900">
+                  £{totalPrice.toFixed(2)}
+                </Text>
               </View>
               <Button
                 title="Create Order"
@@ -294,278 +317,3 @@ export default function MenuScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  cartButton: {
-    position: "relative",
-    padding: 8,
-  },
-  cartBadge: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    backgroundColor: "#ef4444",
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#ffffff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  searchInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    minHeight: 48,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  searchIcon: {
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#1e293b",
-  },
-  categoriesContainer: {
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  categoriesContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  categoryTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    borderRadius: 20,
-    backgroundColor: "#f1f5f9",
-  },
-  categoryTabActive: {
-    backgroundColor: "#3b82f6",
-  },
-  categoryTabText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#64748b",
-  },
-  categoryTabTextActive: {
-    color: "#ffffff",
-  },
-  menuContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  loadingContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#64748b",
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 4,
-  },
-  menuItemHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  menuItemInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  menuItemName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  menuItemDescription: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 8,
-  },
-  menuItemBadges: {
-    flexDirection: "row",
-    gap: 4,
-  },
-  badge: {
-    backgroundColor: "#10b981",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  veganBadge: {
-    backgroundColor: "#8b5cf6",
-  },
-  badgeText: {
-    color: "#ffffff",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  menuItemPrice: {
-    alignItems: "flex-end",
-  },
-  priceText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 8,
-  },
-  cartContainer: {
-    flex: 1,
-  },
-  cartHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  cartTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  clearCartText: {
-    fontSize: 16,
-    color: "#ef4444",
-    fontWeight: "500",
-  },
-  cartItemsContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  cartItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  cartItemInfo: {
-    flex: 1,
-  },
-  cartItemName: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1e293b",
-  },
-  cartItemPrice: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  cartItemActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#f1f5f9",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    minWidth: 20,
-    textAlign: "center",
-  },
-  emptyCart: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyCartText: {
-    fontSize: 16,
-    color: "#64748b",
-    marginTop: 16,
-  },
-  cartFooter: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-  },
-  cartTotal: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  totalLabel: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  totalPrice: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-});
