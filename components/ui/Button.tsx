@@ -2,14 +2,10 @@ import React from "react";
 import {
   TouchableOpacity,
   Text,
-  StyleSheet,
   ActivityIndicator,
-  ViewStyle,
-  TextStyle,
   TouchableOpacityProps,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Theme } from "../../constants/Colors";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -33,27 +29,69 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const buttonStyle = [
-    styles.base,
-    styles[size],
-    styles[variant],
-    fullWidth && styles.fullWidth,
-    disabled && styles.disabled,
-    style,
-  ];
+  const getButtonClasses = () => {
+    const baseClasses = "flex-row items-center justify-center rounded-lg min-h-[44px]";
+    const sizeClasses = {
+      small: "px-4 py-2 min-h-[36px]",
+      medium: "px-6 py-4 min-h-[44px]",
+      large: "px-8 py-6 min-h-[52px]",
+    };
+    const variantClasses = {
+      primary: "bg-primary-500 border-0",
+      secondary: "bg-neutral-100 border-0",
+      outline: "bg-transparent border-2 border-primary-500",
+      ghost: "bg-transparent border-0",
+      danger: "bg-error-500 border-0",
+    };
+    const stateClasses = disabled ? "opacity-50" : "active:opacity-70";
+    const widthClasses = fullWidth ? "w-full" : "";
 
-  const textStyle = [
-    styles.text,
-    styles[`${size}Text`],
-    styles[`${variant}Text`],
-    disabled && styles.disabledText,
-  ];
+    return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${stateClasses} ${widthClasses}`;
+  };
+
+  const getTextClasses = () => {
+    const baseClasses = "font-semibold text-center";
+    const sizeClasses = {
+      small: "text-sm",
+      medium: "text-base",
+      large: "text-lg",
+    };
+    const variantClasses = {
+      primary: "text-white",
+      secondary: "text-text-primary",
+      outline: "text-primary-500",
+      ghost: "text-primary-500",
+      danger: "text-white",
+    };
+    const stateClasses = disabled ? "opacity-70" : "";
+
+    return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${stateClasses}`;
+  };
+
+  const getIconSize = () => {
+    switch (size) {
+      case "large":
+        return 20;
+      case "small":
+        return 14;
+      default:
+        return 16;
+    }
+  };
+
+  const getIconColor = () => {
+    return variant === "primary" ? "#ffffff" : "#3b82f6";
+  };
+
+  const getIconClasses = () => {
+    return iconPosition === "left" ? "mr-2" : "ml-2";
+  };
 
   return (
     <TouchableOpacity
-      style={buttonStyle}
+      className={getButtonClasses()}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      style={style}
       {...props}
     >
       {loading ? (
@@ -66,18 +104,18 @@ export const Button: React.FC<ButtonProps> = ({
           {icon && iconPosition === "left" && (
             <Ionicons
               name={icon}
-              size={size === "large" ? 20 : size === "small" ? 14 : 16}
-              color={variant === "primary" ? "#ffffff" : "#3b82f6"}
-              style={styles.leftIcon}
+              size={getIconSize()}
+              color={getIconColor()}
+              className={getIconClasses()}
             />
           )}
-          <Text style={textStyle}>{title}</Text>
+          <Text className={getTextClasses()}>{title}</Text>
           {icon && iconPosition === "right" && (
             <Ionicons
               name={icon}
-              size={size === "large" ? 20 : size === "small" ? 14 : 16}
-              color={variant === "primary" ? "#ffffff" : "#3b82f6"}
-              style={styles.rightIcon}
+              size={getIconSize()}
+              color={getIconColor()}
+              className={getIconClasses()}
             />
           )}
         </>
@@ -85,104 +123,3 @@ export const Button: React.FC<ButtonProps> = ({
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Theme.borderRadius.lg,
-    minHeight: 44, // Touch target minimum
-  },
-
-  // Sizes
-  small: {
-    paddingHorizontal: Theme.spacing.md,
-    paddingVertical: Theme.spacing.sm,
-    minHeight: 36,
-  },
-  medium: {
-    paddingHorizontal: Theme.spacing.lg,
-    paddingVertical: Theme.spacing.md,
-    minHeight: 44,
-  },
-  large: {
-    paddingHorizontal: Theme.spacing.xl,
-    paddingVertical: Theme.spacing.lg,
-    minHeight: 52,
-  },
-
-  // Variants
-  primary: {
-    backgroundColor: Colors.primary[500],
-    borderWidth: 0,
-  },
-  secondary: {
-    backgroundColor: Colors.neutral[100],
-    borderWidth: 0,
-  },
-  outline: {
-    backgroundColor: "transparent",
-    borderWidth: 2,
-    borderColor: Colors.primary[500],
-  },
-  ghost: {
-    backgroundColor: "transparent",
-    borderWidth: 0,
-  },
-  danger: {
-    backgroundColor: Colors.error[500],
-    borderWidth: 0,
-  },
-
-  // Text styles
-  text: {
-    fontWeight: Theme.typography.fontWeight.semibold,
-    textAlign: "center",
-  },
-  smallText: {
-    fontSize: Theme.typography.fontSize.sm,
-  },
-  mediumText: {
-    fontSize: Theme.typography.fontSize.md,
-  },
-  largeText: {
-    fontSize: Theme.typography.fontSize.lg,
-  },
-
-  primaryText: {
-    color: Colors.text.inverse,
-  },
-  secondaryText: {
-    color: Colors.text.primary,
-  },
-  outlineText: {
-    color: Colors.primary[500],
-  },
-  ghostText: {
-    color: Colors.primary[500],
-  },
-  dangerText: {
-    color: Colors.text.inverse,
-  },
-
-  // Icons
-  leftIcon: {
-    marginRight: Theme.spacing.sm,
-  },
-  rightIcon: {
-    marginLeft: Theme.spacing.sm,
-  },
-
-  // States
-  disabled: {
-    opacity: 0.5,
-  },
-  disabledText: {
-    opacity: 0.7,
-  },
-
-  fullWidth: {
-    width: "100%",
-  },
-});

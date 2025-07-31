@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   RefreshControl,
   TouchableOpacity,
@@ -108,23 +107,27 @@ export default function DashboardScreen() {
     count?: number;
   }) => (
     <TouchableOpacity
-      style={[
-        styles.statusFilter,
-        selectedStatus === status && styles.statusFilterActive,
-      ]}
+      className={`flex-1 p-2 rounded-lg ${
+        selectedStatus === status
+          ? "bg-blue-600"
+          : "bg-gray-100"
+      } items-center`}
       onPress={() => setSelectedStatus(status)}
     >
       <Text
-        style={[
-          styles.statusFilterText,
-          selectedStatus === status && styles.statusFilterTextActive,
-        ]}
+        className={`text-base font-medium ${
+          selectedStatus === status
+            ? "text-white"
+            : "text-gray-700"
+        }`}
       >
         {label}
       </Text>
       {count !== undefined && (
-        <View style={styles.statusCount}>
-          <Text style={styles.statusCountText}>{count}</Text>
+        <View className="bg-white rounded-5 px-2 py-1 mt-1">
+          <Text className="text-xs font-bold text-blue-600">
+            {count}
+          </Text>
         </View>
       )}
     </TouchableOpacity>
@@ -132,33 +135,44 @@ export default function DashboardScreen() {
 
   const OrderCard = ({ order }: { order: any }) => (
     <Card variant="default" padding="medium" margin="small">
-      <View style={styles.orderHeader}>
-        <View style={styles.orderInfo}>
-          <Text style={styles.orderNumber}>#{order.order_number}</Text>
-          <Text style={styles.tableNumber}>Table {order.table_number}</Text>
+      <View className="flex-row justify-between items-center mb-3">
+        <View className="flex-1">
+          <Text className="text-base font-bold text-gray-900">
+            #{order.order_number}
+          </Text>
+          <Text className="text-sm text-gray-700 mt-1">
+            Table {order.table_number}
+          </Text>
         </View>
-        <View style={styles.orderStatus}>
+        <View className="flex-row items-center gap-2">
           <Ionicons
             name={getStatusIcon(order.status)}
             size={20}
             color={getStatusColor(order.status)}
           />
-          <Text
-            style={[styles.statusText, { color: getStatusColor(order.status) }]}
-          >
-            {order.status}
-          </Text>
+                      <Text
+              style={{ color: getStatusColor(order.status) }}
+              className="text-base font-medium"
+            >
+              {order.status}
+            </Text>
         </View>
       </View>
 
-      <View style={styles.orderDetails}>
-        <Text style={styles.itemCount}>{order.item_count} items</Text>
-        <Text style={styles.orderTime}>{formatTime(order.created_at)}</Text>
+      <View className="flex-row justify-between items-center mb-3">
+        <Text className="text-base text-gray-700">
+          {order.item_count} items
+        </Text>
+        <Text className="text-base text-gray-700">
+          {formatTime(order.created_at)}
+        </Text>
       </View>
 
-      <View style={styles.orderFooter}>
-        <Text style={styles.orderTotal}>{formatPrice(order.total_amount)}</Text>
-        <View style={styles.orderActions}>
+      <View className="flex-row justify-between items-center">
+        <Text className="text-base font-bold text-gray-900">
+          {formatPrice(order.total_amount)}
+        </Text>
+        <View className="flex-row gap-2">
           <Button
             title="View"
             variant="outline"
@@ -171,7 +185,7 @@ export default function DashboardScreen() {
               variant="primary"
               size="small"
               onPress={() => handleStatusUpdate(order.id, "Preparing")}
-              style={styles.actionButton}
+              className="ml-2"
             />
           )}
           {order.status === "Preparing" && (
@@ -180,7 +194,7 @@ export default function DashboardScreen() {
               variant="primary"
               size="small"
               onPress={() => handleStatusUpdate(order.id, "Ready")}
-              style={styles.actionButton}
+              className="ml-2"
             />
           )}
         </View>
@@ -189,60 +203,74 @@ export default function DashboardScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.greeting}>Welcome back!</Text>
-          <Text style={styles.branchName}>{branch?.name} Branch</Text>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <View className="flex-row justify-between items-center px-4 py-3 bg-white border-b border-gray-200">
+        <View className="flex-1">
+          <Text className="text-base text-gray-700">Welcome back!</Text>
+          <Text className="text-xl font-bold text-gray-900">
+            {branch?.name} Branch
+          </Text>
         </View>
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.notificationButton}>
-            <View style={{ position: "relative" }}>
+        <View className="flex-row items-center gap-3">
+          <TouchableOpacity className="p-2">
+            <View className="relative">
               <Ionicons name="notifications" size={24} color="#64748b" />
               <NotificationBadge size="small" />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={signOut} style={styles.logoutButton}>
+          <TouchableOpacity onPress={signOut} className="p-2">
             <Ionicons name="log-out-outline" size={24} color="#64748b" />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView
-        style={styles.content}
+        className="flex-1"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          <Card variant="flat" padding="medium" style={styles.statCard}>
-            <View style={styles.statContent}>
+        <View className="flex-row px-4 py-3 gap-3">
+          <Card variant="flat" padding="medium" className="flex-1">
+            <View className="items-center">
               <Ionicons name="add-circle" size={24} color="#3b82f6" />
-              <Text style={styles.statNumber}>{stats?.new || 0}</Text>
-              <Text style={styles.statLabel}>New Orders</Text>
+              <Text className="text-2xl font-bold text-gray-900 mt-2">
+                {stats?.new || 0}
+              </Text>
+              <Text className="text-sm text-gray-700 mt-1">
+                New Orders
+              </Text>
             </View>
           </Card>
 
-          <Card variant="flat" padding="medium" style={styles.statCard}>
-            <View style={styles.statContent}>
+          <Card variant="flat" padding="medium" className="flex-1">
+            <View className="items-center">
               <Ionicons name="time" size={24} color="#f59e0b" />
-              <Text style={styles.statNumber}>{stats?.preparing || 0}</Text>
-              <Text style={styles.statLabel}>Preparing</Text>
+              <Text className="text-2xl font-bold text-gray-900 mt-2">
+                {stats?.preparing || 0}
+              </Text>
+              <Text className="text-sm text-gray-700 mt-1">
+                Preparing
+              </Text>
             </View>
           </Card>
 
-          <Card variant="flat" padding="medium" style={styles.statCard}>
-            <View style={styles.statContent}>
+          <Card variant="flat" padding="medium" className="flex-1">
+            <View className="items-center">
               <Ionicons name="checkmark-circle" size={24} color="#10b981" />
-              <Text style={styles.statNumber}>{stats?.ready || 0}</Text>
-              <Text style={styles.statLabel}>Ready</Text>
+              <Text className="text-2xl font-bold text-gray-900 mt-2">
+                {stats?.ready || 0}
+              </Text>
+              <Text className="text-sm text-gray-700 mt-1">
+                Ready
+              </Text>
             </View>
           </Card>
         </View>
 
         {/* Status Filters */}
-        <View style={styles.filtersContainer}>
+        <View className="flex-row px-4 pb-3 gap-2">
           <StatusFilter status="all" label="All" count={stats?.total} />
           <StatusFilter status="New" label="New" count={stats?.new} />
           <StatusFilter
@@ -254,23 +282,27 @@ export default function DashboardScreen() {
         </View>
 
         {/* Orders List */}
-        <View style={styles.ordersContainer}>
-          <View style={styles.ordersHeader}>
-            <Text style={styles.ordersTitle}>Orders</Text>
-            <Text style={styles.ordersCount}>{orders?.length || 0} orders</Text>
+        <View className="px-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold text-gray-900">Orders</Text>
+            <Text className="text-base text-gray-700">
+              {orders?.length || 0} orders
+            </Text>
           </View>
 
           {ordersLoading ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading orders...</Text>
+            <View className="items-center py-10">
+              <Text className="text-base text-gray-700">Loading orders...</Text>
             </View>
           ) : orders && orders.length > 0 ? (
             orders.map((order) => <OrderCard key={order.id} order={order} />)
           ) : (
-            <Card variant="flat" padding="large" style={styles.emptyState}>
+            <Card variant="flat" padding="large" className="items-center py-10">
               <Ionicons name="restaurant-outline" size={48} color="#64748b" />
-              <Text style={styles.emptyTitle}>No orders</Text>
-              <Text style={styles.emptySubtitle}>
+              <Text className="text-2xl font-bold text-gray-900 mt-4">
+                No orders
+              </Text>
+              <Text className="text-base text-gray-700 mt-2">
                 {selectedStatus === "all"
                   ? "No orders yet today"
                   : `No ${selectedStatus.toLowerCase()} orders`}
@@ -282,206 +314,3 @@ export default function DashboardScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: 16,
-    color: "#64748b",
-  },
-  branchName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  logoutButton: {
-    padding: 8,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  notificationButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-  },
-  statContent: {
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 4,
-  },
-  filtersContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    gap: 8,
-  },
-  statusFilter: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: "#f1f5f9",
-    alignItems: "center",
-  },
-  statusFilterActive: {
-    backgroundColor: "#3b82f6",
-  },
-  statusFilterText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#64748b",
-  },
-  statusFilterTextActive: {
-    color: "#ffffff",
-  },
-  statusCount: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 4,
-  },
-  statusCountText: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#3b82f6",
-  },
-  ordersContainer: {
-    paddingHorizontal: 20,
-  },
-  ordersHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  ordersTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  ordersCount: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  loadingContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#64748b",
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 4,
-    textAlign: "center",
-  },
-  orderHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  orderInfo: {
-    flex: 1,
-  },
-  orderNumber: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  tableNumber: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  orderStatus: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  orderDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  itemCount: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  orderTime: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  orderFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  orderTotal: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  orderActions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  actionButton: {
-    marginLeft: 8,
-  },
-});

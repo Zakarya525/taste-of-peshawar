@@ -1,6 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
-import { Colors, Theme } from "../../constants/Colors";
+import { View, ViewStyle } from "react-native";
 
 interface CardProps {
   children: React.ReactNode;
@@ -17,73 +16,32 @@ export const Card: React.FC<CardProps> = ({
   margin = "none",
   style,
 }) => {
-  const cardStyle = [
-    styles.base,
-    styles[variant],
-    styles[`padding${padding.charAt(0).toUpperCase() + padding.slice(1)}`],
-    styles[`margin${margin.charAt(0).toUpperCase() + margin.slice(1)}`],
-    style,
-  ];
+  const getCardClasses = () => {
+    const baseClasses = "bg-background-card rounded-xl";
+    
+    const variantClasses = {
+      default: "shadow-md",
+      elevated: "shadow-lg",
+      outlined: "border border-border-light shadow-none",
+      flat: "bg-background-primary shadow-none",
+    };
+    
+    const paddingClasses = {
+      none: "p-0",
+      small: "p-4",
+      medium: "p-6",
+      large: "p-8",
+    };
+    
+    const marginClasses = {
+      none: "m-0",
+      small: "m-2",
+      medium: "m-6",
+      large: "m-8",
+    };
 
-  return <View style={cardStyle}>{children}</View>;
+    return `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${marginClasses[margin]}`;
+  };
+
+  return <View className={getCardClasses()} style={style}>{children}</View>;
 };
-
-const styles = StyleSheet.create({
-  base: {
-    backgroundColor: Colors.background.card,
-    borderRadius: Theme.borderRadius.xl,
-  },
-  
-  // Variants
-  default: {
-    ...Theme.shadows.md,
-  },
-  elevated: {
-    ...Theme.shadows.lg,
-  },
-  outlined: {
-    borderWidth: 1,
-    borderColor: Colors.border.light,
-    shadowColor: "transparent",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  flat: {
-    backgroundColor: Colors.background.primary,
-    shadowColor: "transparent",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  
-  // Padding
-  paddingNone: {
-    padding: 0,
-  },
-  paddingSmall: {
-    padding: Theme.spacing.md,
-  },
-  paddingMedium: {
-    padding: Theme.spacing.lg,
-  },
-  paddingLarge: {
-    padding: Theme.spacing.xl,
-  },
-  
-  // Margin
-  marginNone: {
-    margin: 0,
-  },
-  marginSmall: {
-    margin: Theme.spacing.sm,
-  },
-  marginMedium: {
-    margin: Theme.spacing.lg,
-  },
-  marginLarge: {
-    margin: Theme.spacing.xl,
-  },
-});
