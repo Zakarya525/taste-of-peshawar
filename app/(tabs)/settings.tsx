@@ -1,18 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
   Alert,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function SettingsScreen() {
   const { branch, branchUser, signOut } = useAuth();
@@ -21,21 +21,17 @@ export default function SettingsScreen() {
   const [autoRefresh, setAutoRefresh] = React.useState(true);
 
   const handleSignOut = () => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Sign Out",
-          style: "destructive",
-          onPress: signOut,
-        },
-      ]
-    );
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Sign Out",
+        style: "destructive",
+        onPress: signOut,
+      },
+    ]);
   };
 
   const handleFeatureNotImplemented = (featureName: string) => {
@@ -46,13 +42,13 @@ export default function SettingsScreen() {
     );
   };
 
-  const SettingItem = ({ 
-    icon, 
-    title, 
-    subtitle, 
-    onPress, 
+  const SettingItem = ({
+    icon,
+    title,
+    subtitle,
+    onPress,
     showArrow = true,
-    rightComponent 
+    rightComponent,
   }: {
     icon: keyof typeof Ionicons.glyphMap;
     title: string;
@@ -72,9 +68,7 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.settingContent}>
           <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && (
-            <Text style={styles.settingSubtitle}>{subtitle}</Text>
-          )}
+          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
       {rightComponent ? (
@@ -85,12 +79,12 @@ export default function SettingsScreen() {
     </TouchableOpacity>
   );
 
-  const SwitchItem = ({ 
-    icon, 
-    title, 
-    subtitle, 
-    value, 
-    onValueChange 
+  const SwitchItem = ({
+    icon,
+    title,
+    subtitle,
+    value,
+    onValueChange,
   }: {
     icon: keyof typeof Ionicons.glyphMap;
     title: string;
@@ -105,9 +99,7 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.settingContent}>
           <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && (
-            <Text style={styles.settingSubtitle}>{subtitle}</Text>
-          )}
+          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
       <Switch
@@ -134,7 +126,9 @@ export default function SettingsScreen() {
               <Ionicons name="person" size={24} color="#ffffff" />
             </View>
             <View style={styles.userDetails}>
-              <Text style={styles.userName}>{branchUser?.full_name || "User"}</Text>
+              <Text style={styles.userName}>
+                {branchUser?.full_name || "User"}
+              </Text>
               <Text style={styles.userRole}>{branchUser?.role || "Staff"}</Text>
               <Text style={styles.userBranch}>{branch?.name} Branch</Text>
             </View>
@@ -232,7 +226,6 @@ export default function SettingsScreen() {
             variant="danger"
             size="large"
             fullWidth
-            icon="log-out-outline"
             onPress={handleSignOut}
           />
         </View>
@@ -338,4 +331,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 24,
   },
-}); 
+});

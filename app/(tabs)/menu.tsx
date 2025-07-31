@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "../../constants/Colors";
 import { useMenuByCategory, useMenuSearch } from "../../hooks/useMenu";
 import { MenuItem } from "../../lib/supabase";
 
@@ -200,56 +201,6 @@ export default function MenuScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>Restaurant Menu</Text>
-          <Text style={styles.subtitle}>Select items for your table</Text>
-        </View>
-      </View>
-
-      {/* Live Cart Summary */}
-      <Animated.View
-        style={[
-          styles.cartSummary,
-          {
-            transform: [
-              {
-                translateY: cartAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-100, 0],
-                }),
-              },
-            ],
-            opacity: cartAnimation,
-          },
-        ]}
-      >
-        <View style={styles.cartSummaryContent}>
-          <View style={styles.cartInfo}>
-            <Text style={styles.cartItemCount}>{totalItems} items</Text>
-            <Text style={styles.cartTotal}>£{totalPrice.toFixed(2)}</Text>
-          </View>
-          <View style={styles.cartActions}>
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={clearCart}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="trash-outline" size={16} color="#ef4444" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.createOrderButton}
-              onPress={handleCreateOrder}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.createOrderText}>Create Order</Text>
-              <Ionicons name="arrow-forward" size={16} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Animated.View>
-
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
@@ -354,6 +305,48 @@ export default function MenuScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Live Cart Summary - Now at bottom */}
+      <Animated.View
+        style={[
+          styles.cartSummary,
+          {
+            transform: [
+              {
+                translateY: cartAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+            opacity: cartAnimation,
+          },
+        ]}
+      >
+        <View style={styles.cartSummaryContent}>
+          <View style={styles.cartInfo}>
+            <Text style={styles.cartItemCount}>{totalItems} items</Text>
+            <Text style={styles.cartTotal}>£{totalPrice.toFixed(2)}</Text>
+          </View>
+          <View style={styles.cartActions}>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={clearCart}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="trash-outline" size={16} color="#ef4444" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.createOrderButton}
+              onPress={handleCreateOrder}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.createOrderText}>Create Order</Text>
+              <Ionicons name="arrow-forward" size={16} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -390,11 +383,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cartSummary: {
-    backgroundColor: "#4f46e5",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.primary[500],
     marginHorizontal: 24,
-    marginVertical: 16,
+    marginBottom: 24,
     borderRadius: 16,
-    shadowColor: "#4f46e5",
+    shadowColor: Colors.primary[500],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -429,7 +426,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "#ffffff",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -445,7 +442,7 @@ const styles = StyleSheet.create({
   createOrderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#4f46e5",
+    color: Colors.primary[500],
   },
   searchContainer: {
     paddingHorizontal: 24,
@@ -497,8 +494,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   categoryTabActive: {
-    backgroundColor: "#4f46e5",
-    shadowColor: "#4f46e5",
+    backgroundColor: Colors.primary[500],
+    shadowColor: Colors.primary[500],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -516,7 +513,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuContainerWithCart: {
-    marginBottom: 0,
+    paddingBottom: 100, // Add padding to prevent content from being hidden behind cart
   },
   menuContent: {
     paddingBottom: 24,
@@ -539,7 +536,7 @@ const styles = StyleSheet.create({
   },
   categoryDivider: {
     height: 3,
-    backgroundColor: "#4f46e5",
+    backgroundColor: Colors.primary[500],
     width: 40,
     borderRadius: 2,
   },
@@ -553,7 +550,7 @@ const styles = StyleSheet.create({
   loadingSpinner: {
     padding: 16,
     borderRadius: 50,
-    backgroundColor: "#eef2ff",
+    backgroundColor: Colors.primary[50],
     marginBottom: 16,
   },
   loadingText: {
@@ -653,13 +650,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addButton: {
-    backgroundColor: "#4f46e5",
+    backgroundColor: Colors.primary[500],
     width: 36,
     height: 36,
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#4f46e5",
+    shadowColor: Colors.primary[500],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

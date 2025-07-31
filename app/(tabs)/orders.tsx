@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  RefreshControl,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useOrders, useUpdateOrderStatus } from "../../hooks/useOrders";
-import { useNotificationRealtime } from "../../hooks/useNotifications";
+import React, { useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { useNotificationRealtime } from "../../hooks/useNotifications";
+import { useOrders, useUpdateOrderStatus } from "../../hooks/useOrders";
 import { OrderStatus } from "../../lib/supabase";
 
 export default function OrdersScreen() {
@@ -113,6 +113,7 @@ export default function OrdersScreen() {
         selectedStatus === status && styles.statusFilterActive,
       ]}
       onPress={() => setSelectedStatus(status)}
+      activeOpacity={0.7}
     >
       <Text
         style={[
@@ -123,8 +124,20 @@ export default function OrdersScreen() {
         {label}
       </Text>
       {count !== undefined && (
-        <View style={styles.statusCount}>
-          <Text style={styles.statusCountText}>{count}</Text>
+        <View
+          style={[
+            styles.statusCount,
+            selectedStatus === status && styles.statusCountActive,
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusCountText,
+              selectedStatus === status && styles.statusCountTextActive,
+            ]}
+          >
+            {count}
+          </Text>
         </View>
       )}
     </TouchableOpacity>
@@ -210,12 +223,13 @@ export default function OrdersScreen() {
           <Ionicons
             name="search"
             size={20}
-            color="#64748b"
+            color="#9ca3af"
             style={styles.searchIcon}
           />
           <TextInput
             style={styles.searchInput}
             placeholder="Search orders by number or table..."
+            placeholderTextColor="#9ca3af"
             value={searchQuery}
             onChangeText={setSearchQuery}
             clearButtonMode="while-editing"
@@ -224,29 +238,62 @@ export default function OrdersScreen() {
       </View>
 
       {/* Status Filters */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
-        <StatusFilter status="all" label="All" count={orders?.length} />
-        <StatusFilter
-          status="New"
-          label="New"
-          count={orders?.filter((o) => o.status === "New").length}
-        />
-        <StatusFilter
-          status="Preparing"
-          label="Preparing"
-          count={orders?.filter((o) => o.status === "Preparing").length}
-        />
-        <StatusFilter
-          status="Ready"
-          label="Ready"
-          count={orders?.filter((o) => o.status === "Ready").length}
-        />
-      </ScrollView>
+      <View style={styles.filtersWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filtersContainer}
+          contentContainerStyle={styles.filtersContent}
+        >
+          <TouchableOpacity
+            style={[
+              styles.statusFilter,
+              selectedStatus === "all" && styles.statusFilterActive,
+            ]}
+            onPress={() => setSelectedStatus("all")}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.statusFilterText,
+                selectedStatus === "all" && styles.statusFilterTextActive,
+              ]}
+            >
+              All Orders
+            </Text>
+            <View
+              style={[
+                styles.statusCount,
+                selectedStatus === "all" && styles.statusCountActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusCountText,
+                  selectedStatus === "all" && styles.statusCountTextActive,
+                ]}
+              >
+                {orders?.length || 0}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <StatusFilter
+            status="New"
+            label="New"
+            count={orders?.filter((o) => o.status === "New").length}
+          />
+          <StatusFilter
+            status="Preparing"
+            label="Preparing"
+            count={orders?.filter((o) => o.status === "Preparing").length}
+          />
+          <StatusFilter
+            status="Ready"
+            label="Ready"
+            count={orders?.filter((o) => o.status === "Ready").length}
+          />
+        </ScrollView>
+      </View>
 
       {/* Orders List */}
       <ScrollView
@@ -307,21 +354,19 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   searchContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 16,
+    backgroundColor: "#ffffff",
   },
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
     paddingHorizontal: 16,
     minHeight: 48,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   searchIcon: {
     marginRight: 12,
@@ -329,46 +374,71 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1e293b",
+    color: "#0f172a",
+    fontWeight: "400",
   },
-  filtersContainer: {
+  filtersWrapper: {
     backgroundColor: "#ffffff",
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: "#f1f5f9",
+  },
+  filtersContainer: {
+    flexGrow: 0,
   },
   filtersContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   statusFilter: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
     backgroundColor: "#f1f5f9",
+    marginRight: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   statusFilterActive: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#4f46e5",
+    shadowColor: "#4f46e5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
   statusFilterText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     color: "#64748b",
   },
   statusFilterTextActive: {
     color: "#ffffff",
   },
   statusCount: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginTop: 6,
+    minWidth: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusCountActive: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   statusCountText: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#3b82f6",
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#000",
+    textAlign: "center",
+  },
+  statusCountTextActive: {
+    color: "#ffffff",
   },
   ordersContainer: {
     flex: 1,

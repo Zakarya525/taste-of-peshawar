@@ -1,147 +1,147 @@
 // Taste of Peshawar Color Theme
-// Inspired by the rich colors of Peshawar cuisine and culture
+// Updated with #e34691 as primary color
 
 export const Colors = {
-  // Primary Brand Colors
+  // Primary Brand Colors - Based on #e34691
   primary: {
-    50: '#fef7ed',
-    100: '#fdedd4',
-    200: '#fbd7a9',
-    300: '#f8bb72',
-    400: '#f5953a',
-    500: '#f37a1d', // Main brand color - warm orange
-    600: '#e45f12',
-    700: '#bd4711',
-    800: '#963a15',
-    900: '#7a3215',
+    50: "#fdf2f8",
+    100: "#fce7f3",
+    200: "#fbcfe8",
+    300: "#f9a8d4",
+    400: "#f472b6",
+    500: "#e34691", // Main brand color - vibrant pink/magenta
+    600: "#db2777",
+    700: "#be185d",
+    800: "#9d174d",
+    900: "#831843",
   },
 
-  // Secondary Colors - Spice-inspired
+  // Secondary Colors - Complementary teal/cyan
   secondary: {
-    50: '#fdf4ff',
-    100: '#fae8ff',
-    200: '#f5d0fe',
-    300: '#f0abfc',
-    400: '#e879f9',
-    500: '#d946ef', // Vibrant purple
-    600: '#c026d3',
-    700: '#a21caf',
-    800: '#86198f',
-    900: '#701a75',
+    50: "#ecfeff",
+    100: "#cffafe",
+    200: "#a5f3fc",
+    300: "#67e8f9",
+    400: "#22d3ee",
+    500: "#06b6d4", // Complementary teal
+    600: "#0891b2",
+    700: "#0e7490",
+    800: "#155e75",
+    900: "#164e63",
   },
 
-  // Accent Colors - Gold and Amber
+  // Accent Colors - Warm coral/orange
   accent: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    200: '#fde68a',
-    300: '#fcd34d',
-    400: '#fbbf24',
-    500: '#f59e0b', // Golden amber
-    600: '#d97706',
-    700: '#b45309',
-    800: '#92400e',
-    900: '#78350f',
+    50: "#fff7ed",
+    100: "#ffedd5",
+    200: "#fed7aa",
+    300: "#fdba74",
+    400: "#fb923c",
+    500: "#f97316", // Warm coral
+    600: "#ea580c",
+    700: "#c2410c",
+    800: "#9a3412",
+    900: "#7c2d12",
   },
 
   // Success Colors - Fresh Green
   success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    200: '#bbf7d0',
-    300: '#86efac',
-    400: '#4ade80',
-    500: '#22c55e', // Fresh green
-    600: '#16a34a',
-    700: '#15803d',
-    800: '#166534',
-    900: '#14532d',
+    50: "#f0fdf4",
+    100: "#dcfce7",
+    200: "#bbf7d0",
+    300: "#86efac",
+    400: "#4ade80",
+    500: "#22c55e", // Fresh green
+    600: "#16a34a",
+    700: "#15803d",
+    800: "#166534",
+    900: "#14532d",
   },
 
-  // Warning Colors - Warm Orange
+  // Warning Colors - Warm Amber
   warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    200: '#fde68a',
-    300: '#fcd34d',
-    400: '#fbbf24',
-    500: '#f59e0b', // Warm orange
-    600: '#d97706',
-    700: '#b45309',
-    800: '#92400e',
-    900: '#78350f',
+    50: "#fffbeb",
+    100: "#fef3c7",
+    200: "#fde68a",
+    300: "#fcd34d",
+    400: "#fbbf24",
+    500: "#f59e0b", // Warm amber
+    600: "#d97706",
+    700: "#b45309",
+    800: "#92400e",
+    900: "#78350f",
   },
 
   // Error Colors - Rich Red
   error: {
-    50: '#fef2f2',
-    100: '#fee2e2',
-    200: '#fecaca',
-    300: '#fca5a5',
-    400: '#f87171',
-    500: '#ef4444', // Rich red
-    600: '#dc2626',
-    700: '#b91c1c',
-    800: '#991b1b',
-    900: '#7f1d1d',
+    50: "#fef2f2",
+    100: "#fee2e2",
+    200: "#fecaca",
+    300: "#fca5a5",
+    400: "#f87171",
+    500: "#ef4444", // Rich red
+    600: "#dc2626",
+    700: "#b91c1c",
+    800: "#991b1b",
+    900: "#7f1d1d",
   },
 
-  // Neutral Colors - Warm Grays
+  // Neutral Colors - Cool Grays
   neutral: {
-    50: '#fafaf9',
-    100: '#f5f5f4',
-    200: '#e7e5e4',
-    300: '#d6d3d1',
-    400: '#a8a29e',
-    500: '#78716c',
-    600: '#57534e',
-    700: '#44403c',
-    800: '#292524',
-    900: '#1c1917',
+    50: "#f8fafc",
+    100: "#f1f5f9",
+    200: "#e2e8f0",
+    300: "#cbd5e1",
+    400: "#94a3b8",
+    500: "#64748b",
+    600: "#475569",
+    700: "#334155",
+    800: "#1e293b",
+    900: "#0f172a",
   },
 
   // Background Colors
   background: {
-    primary: '#fef7ed', // Warm cream
-    secondary: '#ffffff',
-    tertiary: '#fdf4ff',
-    card: '#ffffff',
-    modal: '#ffffff',
+    primary: "#fdf2f8", // Light pink tint
+    secondary: "#ffffff",
+    tertiary: "#ecfeff", // Light teal tint
+    card: "#ffffff",
+    modal: "#ffffff",
   },
 
   // Text Colors
   text: {
-    primary: '#1c1917', // Dark brown
-    secondary: '#57534e', // Medium gray
-    tertiary: '#78716c', // Light gray
-    inverse: '#ffffff',
-    muted: '#a8a29e',
+    primary: "#0f172a", // Dark slate
+    secondary: "#475569", // Medium slate
+    tertiary: "#64748b", // Light slate
+    inverse: "#ffffff",
+    muted: "#94a3b8",
   },
 
   // Border Colors
   border: {
-    light: '#e7e5e4',
-    medium: '#d6d3d1',
-    dark: '#a8a29e',
+    light: "#e2e8f0",
+    medium: "#cbd5e1",
+    dark: "#94a3b8",
   },
 
   // Special Colors for Restaurant Theme
   restaurant: {
-    spice: '#f37a1d', // Main spice color
-    saffron: '#f59e0b', // Saffron gold
-    cardamom: '#22c55e', // Fresh cardamom
-    cinnamon: '#dc2626', // Rich cinnamon
-    turmeric: '#fbbf24', // Golden turmeric
-    paprika: '#ef4444', // Vibrant paprika
-    coriander: '#10b981', // Fresh coriander
-    cumin: '#8b5cf6', // Deep cumin
+    spice: "#e34691", // Main spice color (primary)
+    saffron: "#f97316", // Warm saffron
+    cardamom: "#22c55e", // Fresh cardamom
+    cinnamon: "#dc2626", // Rich cinnamon
+    turmeric: "#fbbf24", // Golden turmeric
+    paprika: "#ef4444", // Vibrant paprika
+    coriander: "#06b6d4", // Fresh coriander (secondary)
+    cumin: "#8b5cf6", // Deep cumin
   },
 };
 
 // Theme configuration
 export const Theme = {
   colors: Colors,
-  
+
   // Spacing
   spacing: {
     xs: 4,
@@ -164,8 +164,8 @@ export const Theme = {
   // Typography
   typography: {
     fontFamily: {
-      primary: 'System',
-      secondary: 'System',
+      primary: "System",
+      secondary: "System",
     },
     fontSize: {
       xs: 12,
@@ -173,43 +173,43 @@ export const Theme = {
       md: 16,
       lg: 18,
       xl: 20,
-      '2xl': 24,
-      '3xl': 30,
-      '4xl': 36,
+      "2xl": 24,
+      "3xl": 30,
+      "4xl": 36,
     },
     fontWeight: {
-      normal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
+      normal: "400",
+      medium: "500",
+      semibold: "600",
+      bold: "700",
     },
   },
 
   // Shadows
   shadows: {
     sm: {
-      shadowColor: '#000',
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
       shadowRadius: 2,
       elevation: 1,
     },
     md: {
-      shadowColor: '#000',
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
       elevation: 2,
     },
     lg: {
-      shadowColor: '#000',
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.15,
       shadowRadius: 8,
       elevation: 4,
     },
     xl: {
-      shadowColor: '#000',
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 0.2,
       shadowRadius: 16,
@@ -220,9 +220,9 @@ export const Theme = {
 
 // Utility functions for theme
 export const getColor = (colorPath: string) => {
-  const path = colorPath.split('.');
+  const path = colorPath.split(".");
   let current: any = Colors;
-  
+
   for (const key of path) {
     if (current[key] !== undefined) {
       current = current[key];
@@ -230,7 +230,7 @@ export const getColor = (colorPath: string) => {
       return Colors.primary[500]; // Fallback color
     }
   }
-  
+
   return current;
 };
 
