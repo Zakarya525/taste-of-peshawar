@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useOrders, useUpdateOrderStatus } from "../../hooks/useOrders";
 import { useNotificationRealtime } from "../../hooks/useNotifications";
 import { Button } from "../../components/ui/Button";
@@ -17,6 +18,7 @@ import { Card } from "../../components/ui/Card";
 import { OrderStatus } from "../../lib/supabase";
 
 export default function OrdersScreen() {
+  const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">(
     "all"
   );
@@ -167,9 +169,7 @@ export default function OrdersScreen() {
           title="View Details"
           variant="outline"
           size="small"
-          onPress={() => {
-            /* Navigate to order details */
-          }}
+          onPress={() => router.push(`/order-details?id=${order.id}`)}
         />
         {order.status === "New" && (
           <Button

@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
-import { supabase, Branch, BranchUser } from "../lib/supabase";
 import * as Haptics from "expo-haptics";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Branch, BranchUser, supabase } from "../lib/supabase";
 
 interface AuthContextType {
   session: Session | null;
@@ -48,16 +48,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
+    const initializeAuth = async () => {
+      try {
+        setLoading(true);
+
+        // Get initial session
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        console.log(
+          "Initial session check:",
+          session ? "Found session" : "No session"
+        );
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        // If we have a session, fetch branch user data
+        if (session?.user) {
+          console.log("Fetching branch user for:", session.user.email);
+          await fetchBranchUser(session.user.id);
+        } else {
+          setBranchUser(null);
+          setBranch(null);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        setSession(null);
+        setUser(null);
+        setBranchUser(null);
+        setBranch(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state change:", event, session?.user?.email);
+
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -67,8 +99,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setBranchUser(null);
         setBranch(null);
       }
-
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -94,6 +124,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       if (data) {
+        console.log(
+          "Branch user loaded:",
+          data.full_name,
+          "Branch:",
+          data.branches.name
+        );
         setBranchUser(data);
         setBranch(data.branches);
       }
@@ -134,14 +170,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error("No user returned from authentication");
       }
 
-      // Fetch branch user data
-      await fetchBranchUser(user.id);
+      // Fetch branch user data directly to verify branch access
+      const { data: branchUserData, error: branchError } = await supabase
+        .from("branch_users")
+        .select(
+          `
+          *,
+          branches (*)
+        `
+        )
+        .eq("id", user.id)
+        .eq("is_active", true)
+        .single();
+
+      if (branchError) {
+        await supabase.auth.signOut();
+        throw new Error("User not found in branch system");
+      }
+
+      if (!branchUserData) {
+        await supabase.auth.signOut();
+        throw new Error("User not found in branch system");
+      }
 
       // Verify user belongs to the selected branch
-      if (branchUser && branch?.name !== branchName) {
+      if (branchUserData.branches.name !== branchName) {
         await supabase.auth.signOut();
         throw new Error(`User is not authorized for ${branchName} branch`);
       }
+
+      // Update state with the fetched data
+      setBranchUser(branchUserData);
+      setBranch(branchUserData.branches);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 

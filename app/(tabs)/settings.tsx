@@ -38,6 +38,14 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleFeatureNotImplemented = (featureName: string) => {
+    Alert.alert(
+      "Feature Not Available",
+      `${featureName} is not implemented yet. This feature will be available in a future update.`,
+      [{ text: "OK" }]
+    );
+  };
+
   const SettingItem = ({ 
     icon, 
     title, 
@@ -166,13 +174,13 @@ export default function SettingsScreen() {
             icon="color-palette"
             title="Theme"
             subtitle="Light mode"
-            onPress={() => {/* Navigate to theme settings */}}
+            onPress={() => handleFeatureNotImplemented("Theme Settings")}
           />
           <SettingItem
             icon="language"
             title="Language"
             subtitle="English"
-            onPress={() => {/* Navigate to language settings */}}
+            onPress={() => handleFeatureNotImplemented("Language Settings")}
           />
         </Card>
 
@@ -182,17 +190,17 @@ export default function SettingsScreen() {
           <SettingItem
             icon="help-circle"
             title="Help & FAQ"
-            onPress={() => {/* Navigate to help */}}
+            onPress={() => handleFeatureNotImplemented("Help & FAQ")}
           />
           <SettingItem
             icon="document-text"
             title="User Manual"
-            onPress={() => {/* Navigate to manual */}}
+            onPress={() => handleFeatureNotImplemented("User Manual")}
           />
           <SettingItem
             icon="mail"
             title="Contact Support"
-            onPress={() => {/* Navigate to contact */}}
+            onPress={() => handleFeatureNotImplemented("Contact Support")}
           />
         </Card>
 
@@ -208,12 +216,12 @@ export default function SettingsScreen() {
           <SettingItem
             icon="shield-checkmark"
             title="Privacy Policy"
-            onPress={() => {/* Navigate to privacy policy */}}
+            onPress={() => handleFeatureNotImplemented("Privacy Policy")}
           />
           <SettingItem
             icon="document"
             title="Terms of Service"
-            onPress={() => {/* Navigate to terms */}}
+            onPress={() => handleFeatureNotImplemented("Terms of Service")}
           />
         </Card>
 

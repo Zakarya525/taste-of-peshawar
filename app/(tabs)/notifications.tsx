@@ -1,29 +1,75 @@
+import { Ionicons } from "@expo/vector-icons";
+import * as Device from "expo-device";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  RefreshControl,
-  TouchableOpacity,
   Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "../../hooks/useNotifications";
-import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { useAuth } from "../../contexts/AuthContext";
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useNotificationRealtime,
+  useNotifications,
+} from "../../hooks/useNotifications";
+import { supabase } from "../../lib/supabase";
 
 export default function NotificationsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
-  const {
-    data: notifications,
-    isLoading,
-    refetch,
-  } = useNotifications();
+  const { data: notifications, isLoading, refetch } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
+  const { branch } = useAuth();
+
+  // Enable real-time updates
+  useNotificationRealtime();
+
+  // Debug: Log current state
+  console.log("[NotificationsScreen] Current state:", {
+    isLoading,
+    notificationsCount: notifications?.length || 0,
+    hasNotifications: !!notifications && notifications.length > 0,
+  });
+
+  // Test function to create a notification
+  const createTestNotification = async () => {
+    try {
+      if (!branch?.id) {
+        console.error("No branch found for test notification");
+        return;
+      }
+
+      const deviceId =
+        Device.osInternalBuildId || Device.deviceName || "unknown";
+
+      const { error } = await supabase.from("notifications").insert({
+        branch_id: branch.id,
+        title: "Test Notification",
+        message:
+          "This is a test notification created at " +
+          new Date().toLocaleTimeString(),
+        type: "test",
+        is_read: false,
+        device_id: deviceId,
+      });
+
+      if (error) {
+        console.error("Error creating test notification:", error);
+      } else {
+        console.log("Test notification created successfully");
+      }
+    } catch (error) {
+      console.error("Error in createTestNotification:", error);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -68,7 +114,9 @@ export default function NotificationsScreen() {
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 1) {
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60)
+      );
       return `${diffInMinutes}m ago`;
     } else if (diffInHours < 24) {
       return `${Math.floor(diffInHours)}h ago`;
@@ -139,14 +187,22 @@ export default function NotificationsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Notifications</Text>
-        {notifications && notifications.length > 0 && (
+        <View style={styles.headerButtons}>
           <TouchableOpacity
-            style={styles.markAllButton}
-            onPress={handleMarkAllRead}
+            style={styles.testButton}
+            onPress={createTestNotification}
           >
-            <Text style={styles.markAllText}>Mark All Read</Text>
+            <Text style={styles.testButtonText}>Test</Text>
           </TouchableOpacity>
-        )}
+          {notifications && notifications.length > 0 && (
+            <TouchableOpacity
+              style={styles.markAllButton}
+              onPress={handleMarkAllRead}
+            >
+              <Text style={styles.markAllText}>Mark All Read</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <ScrollView
@@ -160,9 +216,19 @@ export default function NotificationsScreen() {
             <Text style={styles.loadingText}>Loading notifications...</Text>
           </View>
         ) : notifications && notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <NotificationCard key={notification.id} notification={notification} />
-          ))
+          <>
+            <View style={styles.debugInfo}>
+              <Text style={styles.debugText}>
+                Found {notifications.length} unread notifications
+              </Text>
+            </View>
+            {notifications.map((notification) => (
+              <NotificationCard
+                key={notification.id}
+                notification={notification}
+              />
+            ))}
+          </>
         ) : (
           <Card variant="flat" padding="large" style={styles.emptyState}>
             <Ionicons name="notifications-off" size={48} color="#64748b" />
@@ -271,4 +337,32 @@ const styles = StyleSheet.create({
   markReadButton: {
     padding: 4,
   },
-}); 
+  debugInfo: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    backgroundColor: "#f0f9ff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0f2fe",
+  },
+  debugText: {
+    fontSize: 12,
+    color: "#0369a1",
+    textAlign: "center",
+  },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  testButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#fef3c7",
+    borderRadius: 6,
+  },
+  testButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#d97706",
+  },
+});

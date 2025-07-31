@@ -1,10 +1,11 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider, useAuth } from "../contexts/AuthContext";
-import { queryClient } from "../lib/queryClient";
 import { LoadingScreen } from "../components/ui/LoadingScreen";
+import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { NotificationService } from "../lib/notifications";
+import { queryClient } from "../lib/queryClient";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -19,15 +20,41 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const { session, loading } = useAuth();
+  const { session, user, branchUser, loading } = useAuth();
+
+  // Initialize push notifications
+  useEffect(() => {
+    const initNotifications = async () => {
+      try {
+        await NotificationService.registerForPushNotificationsAsync();
+        console.log("Push notifications initialized");
+      } catch (error) {
+        console.error("Error initializing push notifications:", error);
+      }
+    };
+
+    if (session && user) {
+      initNotifications();
+    }
+  }, [session, user]);
 
   if (loading) {
     return <LoadingScreen message="Initializing..." />;
   }
 
+  // Check if we have a complete authenticated state
+  const isAuthenticated = session && user && branchUser;
+
+  console.log("Auth state:", {
+    session: !!session,
+    user: !!user,
+    branchUser: !!branchUser,
+    isAuthenticated,
+  });
+
   return (
     <Stack>
-      {!session ? (
+      {!isAuthenticated ? (
         // Auth screens
         <Stack.Screen
           name="login"

@@ -1,13 +1,9 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
-import { supabase, Order, OrderItem, OrderStatus } from "../lib/supabase";
-import { useAuth } from "../contexts/AuthContext";
-import { useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Device from "expo-device";
 import * as Haptics from "expo-haptics";
+import { useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { OrderStatus, supabase } from "../lib/supabase";
 
 // Query keys
 export const orderKeys = {
@@ -200,6 +196,27 @@ export const useCreateOrder = () => {
         throw itemsError;
       }
 
+      // Create notification for new order
+      const deviceId =
+        Device.osInternalBuildId || Device.deviceName || "unknown";
+
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          branch_id: branch.id,
+          title: "New Order Received",
+          message: `Order #${order.order_number} for table ${orderData.table_number} has been placed.`,
+          type: "order",
+          order_id: order.id,
+          is_read: false,
+          device_id: deviceId,
+        });
+
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError);
+        // Don't throw - order was created successfully, notification is just a bonus
+      }
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       return order;
     },
@@ -242,6 +259,50 @@ export const useUpdateOrderStatus = () => {
         .single();
 
       if (error) throw error;
+
+      // Create notification for status updates
+      let notificationTitle = "";
+      let notificationMessage = "";
+
+      switch (status) {
+        case "Preparing":
+          notificationTitle = "Order Being Prepared";
+          notificationMessage = `Order #${data.order_number} for table ${data.table_number} is now being prepared.`;
+          break;
+        case "Ready":
+          notificationTitle = "Order Ready";
+          notificationMessage = `Order #${data.order_number} for table ${data.table_number} is ready for pickup!`;
+          break;
+        default:
+          // No notification for "New" status as it's handled in order creation
+          break;
+      }
+
+      if (notificationTitle && notificationMessage) {
+        const deviceId =
+          Device.osInternalBuildId || Device.deviceName || "unknown";
+
+        const { error: notificationError } = await supabase
+          .from("notifications")
+          .insert({
+            branch_id: branch.id,
+            title: notificationTitle,
+            message: notificationMessage,
+            type: "order",
+            order_id: data.id,
+            is_read: false,
+            device_id: deviceId,
+          });
+
+        if (notificationError) {
+          console.error(
+            "Error creating status notification:",
+            notificationError
+          );
+          // Don't throw - order was updated successfully, notification is just a bonus
+        }
+      }
+
       return data;
     },
     onSuccess: (data) => {

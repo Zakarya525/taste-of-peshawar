@@ -10,11 +10,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   useOrders,
   useOrderStats,
   useOrderRealtime,
+  useUpdateOrderStatus,
 } from "../../hooks/useOrders";
 import { useNotificationRealtime } from "../../hooks/useNotifications";
 import { NotificationBadge } from "../../components/ui/NotificationBadge";
@@ -25,6 +27,7 @@ import { OrderStatus } from "../../lib/supabase";
 const { width } = Dimensions.get("window");
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { branch, signOut } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">(
     "all"
@@ -37,6 +40,7 @@ export default function DashboardScreen() {
     refetch: refetchOrders,
   } = useOrders(selectedStatus === "all" ? undefined : selectedStatus);
   const { data: stats, isLoading: statsLoading } = useOrderStats();
+  const updateStatusMutation = useUpdateOrderStatus();
 
   // Enable real-time updates
   useOrderRealtime();
@@ -46,6 +50,14 @@ export default function DashboardScreen() {
     setRefreshing(true);
     await refetchOrders();
     setRefreshing(false);
+  };
+
+  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
   };
 
   const getStatusColor = (status: OrderStatus) => {
@@ -151,18 +163,14 @@ export default function DashboardScreen() {
             title="View"
             variant="outline"
             size="small"
-            onPress={() => {
-              /* Navigate to order details */
-            }}
+            onPress={() => router.push(`/order-details?id=${order.id}`)}
           />
           {order.status === "New" && (
             <Button
               title="Start"
               variant="primary"
               size="small"
-              onPress={() => {
-                /* Update status to Preparing */
-              }}
+              onPress={() => handleStatusUpdate(order.id, "Preparing")}
               style={styles.actionButton}
             />
           )}
@@ -171,9 +179,7 @@ export default function DashboardScreen() {
               title="Ready"
               variant="primary"
               size="small"
-              onPress={() => {
-                /* Update status to Ready */
-              }}
+              onPress={() => handleStatusUpdate(order.id, "Ready")}
               style={styles.actionButton}
             />
           )}
