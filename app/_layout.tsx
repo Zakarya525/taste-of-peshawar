@@ -54,31 +54,30 @@ function RootLayoutNav() {
 
   return (
     <Stack>
-      {!isAuthenticated ? (
-        // Auth screens
-        <Stack.Screen
-          name="login"
-          options={{
-            headerShown: false,
-          }}
-        />
-      ) : (
-        // Main app screens
-        <>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="create-order"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </>
-      )}
+      <Stack.Screen
+        name="login"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="create-order"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="order-details"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

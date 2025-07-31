@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: Theme.typography.fontSize["3xl"],
-    fontWeight: Theme.typography.fontWeight.bold,
+    fontWeight: "700" as const,
     color: Colors.text.primary,
     marginBottom: Theme.spacing.xs,
     textAlign: "center",

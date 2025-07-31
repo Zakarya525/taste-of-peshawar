@@ -1,17 +1,12 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useOrder, useUpdateOrderStatus } from "../hooks/useOrders";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { Colors } from "../constants/Colors";
+import { useOrder, useUpdateOrderStatus } from "../hooks/useOrders";
 import { OrderStatus } from "../lib/supabase";
 
 export default function OrderDetailsScreen() {
@@ -33,13 +28,13 @@ export default function OrderDetailsScreen() {
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case "New":
-        return "#3b82f6";
+        return Colors.primary[500];
       case "Preparing":
-        return "#f59e0b";
+        return Colors.primary[500];
       case "Ready":
-        return "#10b981";
+        return Colors.primary[500];
       default:
-        return "#64748b";
+        return Colors.primary[500];
     }
   };
 
@@ -70,21 +65,21 @@ export default function OrderDetailsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading order details...</Text>
         </View>
-      </SafeAreaView>
+      </>
     );
   }
 
   if (!orderData?.order) {
     return (
-      <SafeAreaView style={styles.container}>
+      <>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Order not found</Text>
         </View>
-      </SafeAreaView>
+      </>
     );
   }
 
@@ -93,15 +88,12 @@ export default function OrderDetailsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Button
-          title="Back"
-          variant="ghost"
-          size="small"
-          icon="arrow-back"
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color={Colors.primary[500]}
           onPress={() => router.back()}
         />
-        <Text style={styles.title}>Order #{order.order_number}</Text>
-        <View style={{ width: 60 }} />
       </View>
 
       <ScrollView style={styles.content}>
@@ -113,24 +105,37 @@ export default function OrderDetailsScreen() {
               size={24}
               color={getStatusColor(order.status)}
             />
-            <Text style={[styles.statusText, { color: getStatusColor(order.status) }]}>
+            <Text
+              style={[
+                styles.statusText,
+                { color: getStatusColor(order.status) },
+              ]}
+            >
               {order.status}
             </Text>
           </View>
-          
+
           <View style={styles.orderInfo}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Table:</Text>
-              <Text style={styles.infoValue}>Table {order.table_number}</Text>
+              <Text style={styles.infoLabel}>Order Number:</Text>
+              <Text style={styles.infoValue}>#{order.order_number}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Created:</Text>
-              <Text style={styles.infoValue}>{formatTime(order.created_at)}</Text>
+              <Text style={styles.infoLabel}>Table Number:</Text>
+              <Text style={styles.infoValue}>{order.table_number}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Created At:</Text>
+              <Text style={styles.infoValue}>
+                {formatTime(order.created_at)}
+              </Text>
             </View>
             {order.ready_at && (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Ready:</Text>
-                <Text style={styles.infoValue}>{formatTime(order.ready_at)}</Text>
+                <Text style={styles.infoLabel}>Ready At:</Text>
+                <Text style={styles.infoValue}>
+                  {formatTime(order.ready_at)}
+                </Text>
               </View>
             )}
           </View>
@@ -143,10 +148,12 @@ export default function OrderDetailsScreen() {
             <View key={item.id} style={styles.itemRow}>
               <View style={styles.itemInfo}>
                 <Text style={styles.itemName}>{item.menu_items?.name}</Text>
-                <Text style={styles.itemQuantity}>x{item.quantity}</Text>
+                <Text style={styles.itemQuantity}>x{item.quantity} </Text>
               </View>
               <View style={styles.itemPrice}>
-                <Text style={styles.priceText}>{formatPrice(item.total_price)}</Text>
+                <Text style={styles.priceText}>
+                  {formatPrice(item.total_price)}
+                </Text>
                 {item.special_instructions && (
                   <Text style={styles.specialInstructions}>
                     Note: {item.special_instructions}
@@ -155,10 +162,12 @@ export default function OrderDetailsScreen() {
               </View>
             </View>
           ))}
-          
+
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalPrice}>{formatPrice(order.total_amount)}</Text>
+            <Text style={styles.totalPrice}>
+              {formatPrice(order.total_amount)}
+            </Text>
           </View>
         </Card>
 
@@ -210,22 +219,20 @@ export default function OrderDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: Colors.background.card,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    backgroundColor: Colors.background.card,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: Colors.text.primary,
   },
   content: {
     flex: 1,
@@ -267,18 +274,18 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: "#64748b",
+    color: Colors.text.secondary,
     fontWeight: "500",
   },
   infoValue: {
     fontSize: 14,
-    color: "#1e293b",
+    color: Colors.text.primary,
     fontWeight: "600",
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1e293b",
+    color: Colors.text.primary,
     marginBottom: 16,
   },
   itemRow: {
@@ -287,7 +294,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: Colors.border.light,
   },
   itemInfo: {
     flex: 1,
@@ -297,12 +304,12 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#1e293b",
+    color: Colors.text.primary,
     flex: 1,
   },
   itemQuantity: {
     fontSize: 14,
-    color: "#64748b",
+    color: Colors.text.secondary,
     marginLeft: 8,
   },
   itemPrice: {
@@ -311,11 +318,11 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1e293b",
+    color: Colors.text.primary,
   },
   specialInstructions: {
     fontSize: 12,
-    color: "#64748b",
+    color: Colors.text.secondary,
     marginTop: 4,
     fontStyle: "italic",
   },
@@ -325,22 +332,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    borderTopColor: Colors.border.light,
     marginTop: 8,
   },
   totalLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1e293b",
+    color: Colors.text.primary,
   },
   totalPrice: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: Colors.text.primary,
   },
   notesText: {
     fontSize: 16,
-    color: "#1e293b",
+    color: Colors.text.primary,
     lineHeight: 24,
   },
   actionsContainer: {
@@ -355,8 +362,8 @@ const styles = StyleSheet.create({
   },
   readyText: {
     fontSize: 16,
-    color: "#10b981",
+    color: Colors.primary[500],
     fontWeight: "600",
     marginTop: 8,
   },
-}); 
+});

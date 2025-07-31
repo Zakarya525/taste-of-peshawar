@@ -20,20 +20,6 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = React.useState(true);
   const [autoRefresh, setAutoRefresh] = React.useState(true);
 
-  const handleSignOut = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Sign Out",
-        style: "destructive",
-        onPress: signOut,
-      },
-    ]);
-  };
-
   const handleFeatureNotImplemented = (featureName: string) => {
     Alert.alert(
       "Feature Not Available",
@@ -64,7 +50,7 @@ export default function SettingsScreen() {
     >
       <View style={styles.settingItemLeft}>
         <View style={styles.settingIcon}>
-          <Ionicons name={icon} size={20} color="#3b82f6" />
+          <Ionicons name={icon} size={20} color="#e34691" />
         </View>
         <View style={styles.settingContent}>
           <Text style={styles.settingTitle}>{title}</Text>
@@ -95,7 +81,7 @@ export default function SettingsScreen() {
     <View style={styles.settingItem}>
       <View style={styles.settingItemLeft}>
         <View style={styles.settingIcon}>
-          <Ionicons name={icon} size={20} color="#3b82f6" />
+          <Ionicons name={icon} size={20} color="#e34691" />
         </View>
         <View style={styles.settingContent}>
           <Text style={styles.settingTitle}>{title}</Text>
@@ -105,7 +91,7 @@ export default function SettingsScreen() {
       <Switch
         value={value}
         onValueChange={onValueChange}
-        trackColor={{ false: "#e2e8f0", true: "#3b82f6" }}
+        trackColor={{ false: "#e2e8f0", true: "#e34691" }}
         thumbColor="#ffffff"
       />
     </View>
@@ -113,10 +99,6 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-      </View>
-
       <ScrollView style={styles.content}>
         {/* User Info */}
         <Card variant="default" padding="medium" margin="medium">
@@ -226,7 +208,7 @@ export default function SettingsScreen() {
             variant="danger"
             size="large"
             fullWidth
-            onPress={handleSignOut}
+            onPress={signOut}
           />
         </View>
       </ScrollView>
@@ -268,7 +250,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#e34691",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -289,7 +271,7 @@ const styles = StyleSheet.create({
   },
   userBranch: {
     fontSize: 14,
-    color: "#3b82f6",
+    color: "#000",
     fontWeight: "500",
   },
   settingItem: {

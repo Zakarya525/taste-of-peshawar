@@ -2,8 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Dimensions,
   RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -13,9 +15,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { Colors } from "../../constants/Colors";
 import { useNotificationRealtime } from "../../hooks/useNotifications";
 import { useOrders, useUpdateOrderStatus } from "../../hooks/useOrders";
 import { OrderStatus } from "../../lib/supabase";
+
+const { width } = Dimensions.get("window");
+const isTablet = width >= 768;
 
 export default function OrdersScreen() {
   const router = useRouter();
@@ -49,34 +55,43 @@ export default function OrdersScreen() {
         order.table_number.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case "New":
-        return "#3b82f6";
-      case "Preparing":
-        return "#f59e0b";
-      case "Ready":
-        return "#10b981";
-      default:
-        return "#64748b";
-    }
-  };
-
-  const getStatusIcon = (status: OrderStatus) => {
-    switch (status) {
-      case "New":
-        return "add-circle";
-      case "Preparing":
-        return "time";
-      case "Ready":
-        return "checkmark-circle";
-      default:
-        return "help-circle";
-    }
+  const getStatusConfig = (status: OrderStatus) => {
+    const configs = {
+      New: {
+        color: Colors.primary[500], // Brand pink
+        backgroundColor: Colors.primary[50],
+        icon: "flash" as const,
+      },
+      Preparing: {
+        color: Colors.warning[500], // Warm amber
+        backgroundColor: Colors.warning[50],
+        icon: "timer" as const,
+      },
+      Ready: {
+        color: Colors.success[500], // Fresh green
+        backgroundColor: Colors.success[50],
+        icon: "checkmark-circle" as const,
+      },
+    };
+    return (
+      configs[status] || {
+        color: Colors.neutral[500],
+        backgroundColor: Colors.neutral[50],
+        icon: "help-circle" as const,
+      }
+    );
   };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+
     return date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
@@ -106,191 +121,266 @@ export default function OrdersScreen() {
     status: OrderStatus | "all";
     label: string;
     count?: number;
-  }) => (
-    <TouchableOpacity
-      style={[
-        styles.statusFilter,
-        selectedStatus === status && styles.statusFilterActive,
-      ]}
-      onPress={() => setSelectedStatus(status)}
-      activeOpacity={0.7}
-    >
-      <Text
+  }) => {
+    const isActive = selectedStatus === status;
+    const config =
+      status !== "all" ? getStatusConfig(status as OrderStatus) : null;
+
+    return (
+      <TouchableOpacity
         style={[
-          styles.statusFilterText,
-          selectedStatus === status && styles.statusFilterTextActive,
+          styles.statusFilter,
+          isActive && [
+            styles.statusFilterActive,
+            { backgroundColor: Colors.primary[500] },
+          ],
         ]}
+        onPress={() => setSelectedStatus(status)}
+        activeOpacity={0.8}
       >
-        {label}
-      </Text>
-      {count !== undefined && (
-        <View
-          style={[
-            styles.statusCount,
-            selectedStatus === status && styles.statusCountActive,
-          ]}
-        >
+        <View style={styles.statusFilterContent}>
+          {config && (
+            <Ionicons
+              name={config.icon}
+              size={16}
+              color={isActive ? Colors.text.inverse : config.color}
+              style={styles.statusFilterIcon}
+            />
+          )}
           <Text
             style={[
-              styles.statusCountText,
-              selectedStatus === status && styles.statusCountTextActive,
+              styles.statusFilterText,
+              isActive
+                ? styles.statusFilterTextActive
+                : config
+                ? { color: config.color }
+                : { color: Colors.primary[500] },
             ]}
           >
-            {count}
+            {label}
           </Text>
+          {count !== undefined && (
+            <View
+              style={[styles.statusBadge, isActive && styles.statusBadgeActive]}
+            >
+              <Text
+                style={[
+                  styles.statusBadgeText,
+                  isActive && styles.statusBadgeTextActive,
+                ]}
+              >
+                {count}
+              </Text>
+            </View>
+          )}
         </View>
-      )}
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
-  const OrderCard = ({ order }: { order: any }) => (
-    <Card variant="default" padding="medium" margin="small">
-      <View style={styles.orderHeader}>
-        <View style={styles.orderInfo}>
-          <Text style={styles.orderNumber}>#{order.order_number}</Text>
-          <Text style={styles.tableNumber}>Table {order.table_number}</Text>
-          <Text style={styles.orderTime}>{formatTime(order.created_at)}</Text>
-        </View>
-        <View style={styles.orderStatus}>
-          <Ionicons
-            name={getStatusIcon(order.status)}
-            size={20}
-            color={getStatusColor(order.status)}
-          />
-          <Text
-            style={[styles.statusText, { color: getStatusColor(order.status) }]}
-          >
-            {order.status}
-          </Text>
-        </View>
-      </View>
+  const OrderCard = ({ order }: { order: any }) => {
+    const statusConfig = getStatusConfig(order.status);
+    const timeAgo = formatTime(order.created_at);
+    const isUrgent =
+      order.status === "New" &&
+      new Date().getTime() - new Date(order.created_at).getTime() >
+        15 * 60 * 1000; // 15 minutes
 
-      <View style={styles.orderDetails}>
-        <Text style={styles.itemCount}>{order.item_count} items</Text>
-        <Text style={styles.orderTotal}>{formatPrice(order.total_amount)}</Text>
-      </View>
-
-      {order.notes && (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesLabel}>Notes:</Text>
-          <Text style={styles.notesText}>{order.notes}</Text>
-        </View>
-      )}
-
-      <View style={styles.orderActions}>
-        <Button
-          title="View Details"
-          variant="outline"
-          size="small"
-          onPress={() => router.push(`/order-details?id=${order.id}`)}
+    return (
+      <Card
+        variant="default"
+        padding="none"
+        margin="small"
+        style={[styles.orderCard, isUrgent && styles.urgentCard]}
+      >
+        {/* Status Bar */}
+        <View
+          style={[styles.statusBar, { backgroundColor: statusConfig.color }]}
         />
-        {order.status === "New" && (
-          <Button
-            title="Start Preparing"
-            variant="primary"
-            size="small"
-            onPress={() => handleStatusUpdate(order.id, "Preparing")}
-            style={styles.actionButton}
-          />
-        )}
-        {order.status === "Preparing" && (
-          <Button
-            title="Mark Ready"
-            variant="primary"
-            size="small"
-            onPress={() => handleStatusUpdate(order.id, "Ready")}
-            style={styles.actionButton}
-          />
-        )}
-      </View>
-    </Card>
-  );
+
+        <View style={styles.cardContent}>
+          {/* Header Section */}
+          <View style={styles.orderHeader}>
+            <View style={styles.orderMeta}>
+              <Text style={styles.orderNumber}>#{order.order_number}</Text>
+              <View style={styles.orderSubMeta}>
+                <View style={styles.tableInfo}>
+                  <Ionicons
+                    name="restaurant"
+                    size={14}
+                    color={Colors.text.tertiary}
+                  />
+                  <Text style={styles.tableNumber}>
+                    Table {order.table_number}
+                  </Text>
+                </View>
+                <View style={styles.timeInfo}>
+                  <Ionicons
+                    name="time"
+                    size={14}
+                    color={isUrgent ? Colors.error[500] : Colors.text.tertiary}
+                  />
+                  <Text
+                    style={[
+                      styles.orderTime,
+                      isUrgent && {
+                        color: Colors.error[500],
+                        fontWeight: "600",
+                      },
+                    ]}
+                  >
+                    {timeAgo}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View
+              style={[
+                styles.statusChip,
+                { backgroundColor: statusConfig.backgroundColor },
+              ]}
+            >
+              <Ionicons
+                name={statusConfig.icon}
+                size={16}
+                color={statusConfig.color}
+              />
+              <Text style={[styles.statusText, { color: statusConfig.color }]}>
+                {order.status}
+              </Text>
+            </View>
+          </View>
+
+          {/* Order Summary */}
+          <View style={styles.orderSummary}>
+            <View style={styles.summaryItem}>
+              <Ionicons name="list" size={16} color={Colors.text.tertiary} />
+              <Text style={styles.itemCount}>{order.item_count} items</Text>
+            </View>
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryItem}>
+              <Ionicons name="card" size={16} color={Colors.success[500]} />
+              <Text style={styles.orderTotal}>
+                {formatPrice(order.total_amount)}
+              </Text>
+            </View>
+          </View>
+
+          {/* Notes Section */}
+          {order.notes && (
+            <View style={styles.notesContainer}>
+              <View style={styles.notesHeader}>
+                <Ionicons
+                  name="document-text"
+                  size={14}
+                  color={Colors.warning[600]}
+                />
+                <Text style={styles.notesLabel}>Special Instructions</Text>
+              </View>
+              <Text style={styles.notesText}>{order.notes}</Text>
+            </View>
+          )}
+
+          {/* Action Buttons */}
+          <View style={styles.orderActions}>
+            <Button
+              title="View Details"
+              variant="outline"
+              size="small"
+              onPress={() => router.push(`/order-details?id=${order.id}`)}
+              style={styles.detailsButton}
+            />
+
+            {order.status === "New" && (
+              <Button
+                title="Start Preparing"
+                variant="primary"
+                size="small"
+                onPress={() => handleStatusUpdate(order.id, "Preparing")}
+                style={styles.actionButton}
+              />
+            )}
+
+            {order.status === "Preparing" && (
+              <Button
+                title="Mark Ready"
+                variant="primary"
+                size="small"
+                onPress={() => handleStatusUpdate(order.id, "Ready")}
+                style={styles.actionButton}
+              />
+            )}
+          </View>
+        </View>
+      </Card>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Orders</Text>
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="#64748b" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={Colors.background.secondary}
+      />
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Ionicons
-            name="search"
-            size={20}
-            color="#9ca3af"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search orders by number or table..."
-            placeholderTextColor="#9ca3af"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            clearButtonMode="while-editing"
-          />
+      {/* Search Section */}
+      <View style={styles.searchSection}>
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <Ionicons
+              name="search"
+              size={20}
+              color={Colors.text.tertiary}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by order # or table..."
+              placeholderTextColor={Colors.text.muted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              clearButtonMode="while-editing"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Ionicons
+                  name="close-circle"
+                  size={20}
+                  color={Colors.text.muted}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
 
       {/* Status Filters */}
-      <View style={styles.filtersWrapper}>
+      <View style={styles.filtersSection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.filtersContainer}
-          contentContainerStyle={styles.filtersContent}
+          contentContainerStyle={styles.filtersContainer}
         >
-          <TouchableOpacity
-            style={[
-              styles.statusFilter,
-              selectedStatus === "all" && styles.statusFilterActive,
-            ]}
-            onPress={() => setSelectedStatus("all")}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.statusFilterText,
-                selectedStatus === "all" && styles.statusFilterTextActive,
-              ]}
-            >
-              All Orders
-            </Text>
-            <View
-              style={[
-                styles.statusCount,
-                selectedStatus === "all" && styles.statusCountActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusCountText,
-                  selectedStatus === "all" && styles.statusCountTextActive,
-                ]}
-              >
-                {orders?.length || 0}
-              </Text>
-            </View>
-          </TouchableOpacity>
+          <StatusFilter
+            status="all"
+            label="All Orders"
+            count={orders?.length || 0}
+          />
           <StatusFilter
             status="New"
             label="New"
-            count={orders?.filter((o) => o.status === "New").length}
+            count={orders?.filter((o) => o.status === "New").length || 0}
           />
           <StatusFilter
             status="Preparing"
             label="Preparing"
-            count={orders?.filter((o) => o.status === "Preparing").length}
+            count={orders?.filter((o) => o.status === "Preparing").length || 0}
           />
           <StatusFilter
             status="Ready"
             label="Ready"
-            count={orders?.filter((o) => o.status === "Ready").length}
+            count={orders?.filter((o) => o.status === "Ready").length || 0}
           />
         </ScrollView>
       </View>
@@ -298,28 +388,53 @@ export default function OrdersScreen() {
       {/* Orders List */}
       <ScrollView
         style={styles.ordersContainer}
+        contentContainerStyle={styles.ordersContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.primary[500]]}
+            tintColor={Colors.primary[500]}
+          />
         }
+        showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View style={styles.loadingContainer}>
+            <View style={styles.loadingSpinner}>
+              <Ionicons name="refresh" size={32} color={Colors.primary[500]} />
+            </View>
             <Text style={styles.loadingText}>Loading orders...</Text>
           </View>
         ) : filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))
+          <>
+            <View style={styles.ordersGrid}>
+              {filteredOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </View>
+            <View style={styles.bottomSpacer} />
+          </>
         ) : (
-          <Card variant="flat" padding="large" style={styles.emptyState}>
-            <Ionicons name="receipt-outline" size={48} color="#64748b" />
-            <Text style={styles.emptyTitle}>No orders found</Text>
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons
+                name="receipt-outline"
+                size={64}
+                color={Colors.neutral[300]}
+              />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {searchQuery ? "No matching orders" : "No orders yet"}
+            </Text>
             <Text style={styles.emptySubtitle}>
               {searchQuery
-                ? "No orders match your search"
-                : `No ${selectedStatus.toLowerCase()} orders`}
+                ? "Try adjusting your search terms"
+                : selectedStatus === "all"
+                ? "New orders will appear here"
+                : `No ${selectedStatus.toLowerCase()} orders at the moment`}
             </Text>
-          </Card>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -329,44 +444,30 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: Colors.background.primary,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+
+  // Search Section
+  searchSection: {
+    backgroundColor: Colors.background.secondary,
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
+    paddingTop: 16,
+    paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  headerActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  searchButton: {
-    padding: 8,
+    borderBottomColor: Colors.border.light,
   },
   searchContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
+    position: "relative",
   },
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
-    borderRadius: 16,
+    backgroundColor: Colors.neutral[50],
+    borderRadius: 12,
     paddingHorizontal: 16,
-    minHeight: 48,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: Colors.border.light,
   },
   searchIcon: {
     marginRight: 12,
@@ -374,168 +475,265 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#0f172a",
+    color: Colors.text.primary,
     fontWeight: "400",
   },
-  filtersWrapper: {
-    backgroundColor: "#ffffff",
+
+  // Filters Section
+  filtersSection: {
+    backgroundColor: Colors.background.secondary,
+    paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
+    borderBottomColor: Colors.border.light,
   },
   filtersContainer: {
-    flexGrow: 0,
-  },
-  filtersContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 16,
+    gap: 12,
   },
   statusFilter: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    backgroundColor: "#f1f5f9",
-    marginRight: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderRadius: 20,
+    backgroundColor: Colors.neutral[50],
+    borderWidth: 1,
+    borderColor: Colors.border.light,
   },
   statusFilterActive: {
-    backgroundColor: "#4f46e5",
-    shadowColor: "#4f46e5",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: "transparent",
+  },
+  statusFilterContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  statusFilterIcon: {
+    marginRight: 4,
   },
   statusFilterText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#64748b",
+    color: Colors.text.secondary,
   },
   statusFilterTextActive: {
-    color: "#ffffff",
+    color: Colors.text.inverse,
   },
-  statusCount: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    borderRadius: 12,
+  statusBadge: {
+    backgroundColor: Colors.border.light,
+    borderRadius: 10,
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginTop: 6,
+    paddingVertical: 2,
+    marginLeft: 4,
     minWidth: 20,
     alignItems: "center",
-    justifyContent: "center",
   },
-  statusCountActive: {
+  statusBadgeActive: {
     backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
-  statusCountText: {
+  statusBadgeText: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#000",
-    textAlign: "center",
+    color: Colors.text.secondary,
   },
-  statusCountTextActive: {
-    color: "#ffffff",
+  statusBadgeTextActive: {
+    color: Colors.text.inverse,
   },
+
+  // Orders Container
   ordersContainer: {
     flex: 1,
+  },
+  ordersContent: {
     paddingHorizontal: 20,
+    paddingTop: 16,
   },
-  loadingContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
+  ordersGrid: {
+    gap: 12,
   },
-  loadingText: {
-    fontSize: 16,
-    color: "#64748b",
+  bottomSpacer: {
+    height: 20,
   },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
+
+  // Order Card
+  orderCard: {
+    backgroundColor: Colors.background.card,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colors.border.light,
   },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginTop: 16,
+  urgentCard: {
+    borderColor: Colors.error[200],
   },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 4,
-    textAlign: "center",
+  statusBar: {
+    height: 4,
+    width: "100%",
   },
+  cardContent: {
+    padding: 20,
+  },
+
+  // Order Header
   orderHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  orderInfo: {
+  orderMeta: {
     flex: 1,
   },
   orderNumber: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.text.primary,
+    letterSpacing: -0.5,
+    marginBottom: 8,
   },
-  tableNumber: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
+  orderSubMeta: {
+    flexDirection: "row",
+    gap: 16,
   },
-  orderTime: {
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  orderStatus: {
+  tableInfo: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
-  statusText: {
+  tableNumber: {
     fontSize: 14,
+    color: Colors.text.secondary,
     fontWeight: "500",
   },
-  orderDetails: {
+  timeInfo: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
+    alignItems: "center",
+    gap: 4,
+  },
+  orderTime: {
+    fontSize: 14,
+    color: Colors.text.secondary,
+    fontWeight: "500",
+  },
+  statusChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  statusText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  // Order Summary
+  orderSummary: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.neutral[50],
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  summaryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+  },
+  summaryDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: Colors.border.light,
+    marginHorizontal: 16,
   },
   itemCount: {
     fontSize: 14,
-    color: "#64748b",
+    color: Colors.text.secondary,
+    fontWeight: "500",
   },
   orderTotal: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
+    fontWeight: "700",
+    color: Colors.text.primary,
   },
+
+  // Notes
   notesContainer: {
-    marginBottom: 12,
-    padding: 12,
-    backgroundColor: "#f8fafc",
-    borderRadius: 8,
+    backgroundColor: Colors.warning[50],
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.warning[500],
+  },
+  notesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
   },
   notesLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#64748b",
-    marginBottom: 4,
+    color: Colors.warning[700],
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   notesText: {
     fontSize: 14,
-    color: "#1e293b",
+    color: Colors.warning[800],
+    lineHeight: 20,
   },
+
+  // Actions
   orderActions: {
     flexDirection: "row",
-    gap: 8,
+    gap: 12,
+  },
+  detailsButton: {
+    flex: 1,
   },
   actionButton: {
-    marginLeft: 8,
+    flex: 1,
+  },
+
+  // Loading State
+  loadingContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: Colors.text.secondary,
+    fontWeight: "500",
+  },
+
+  // Empty State
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  emptyIconContainer: {
+    marginBottom: 24,
+    opacity: 0.6,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.text.primary,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: Colors.text.secondary,
+    textAlign: "center",
+    lineHeight: 24,
   },
 });

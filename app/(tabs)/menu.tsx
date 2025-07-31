@@ -354,14 +354,14 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: Colors.background.card,
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 20,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.background.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
+    borderBottomColor: Colors.border.light,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -374,12 +374,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#0f172a",
+    color: Colors.text.primary,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 14,
-    color: "#64748b",
+    color: Colors.text.secondary,
     marginTop: 4,
   },
   cartSummary: {
@@ -447,17 +447,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 24,
     paddingVertical: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.background.card,
   },
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: Colors.background.card,
     borderRadius: 16,
     paddingHorizontal: 16,
     minHeight: 48,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: Colors.border.light,
   },
   searchIcon: {
     marginRight: 12,
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#0f172a",
+    color: Colors.text.primary,
     fontWeight: "400",
   },
   categoriesWrapper: {
@@ -583,11 +583,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   menuItemCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.background.primary,
     borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowColor: Colors.border.dark,
+    shadowOffset: { width: 1, height: 3 },
+    shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 2,
   },

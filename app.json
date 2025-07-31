@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "taste-of-peshawar",
+    "name": "Taste of Peshawar - OMS",
     "slug": "taste-of-peshawar",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,6 +15,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "notification": {
+        "icon": "./assets/images/notification-icon.png",
+        "color": "#e34691"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.zaki45.tasteofpeshawar"
