@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Colors, Theme } from "../../constants/Colors";
 
 interface LoadingScreenProps {

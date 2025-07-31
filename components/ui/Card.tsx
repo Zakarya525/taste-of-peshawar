@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, View, ViewStyle } from "react-native";
 import { Colors, Theme } from "../../constants/Colors";
 
 interface CardProps {
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background.card,
     borderRadius: Theme.borderRadius.xl,
   },
-  
+
   // Variants
   default: {
     ...Theme.shadows.md,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 0,
   },
-  
+
   // Padding
   paddingNone: {
     padding: 0,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   paddingLarge: {
     padding: Theme.spacing.xl,
   },
-  
+
   // Margin
   marginNone: {
     margin: 0,

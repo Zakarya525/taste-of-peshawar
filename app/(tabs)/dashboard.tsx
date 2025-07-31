@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  RefreshControl,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState } from "react";
 import {
-  useOrders,
-  useOrderStats,
-  useOrderRealtime,
-  useUpdateOrderStatus,
-} from "../../hooks/useOrders";
-import { useNotificationRealtime } from "../../hooks/useNotifications";
-import { NotificationBadge } from "../../components/ui/NotificationBadge";
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { NotificationBadge } from "../../components/ui/NotificationBadge";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNotificationRealtime } from "../../hooks/useNotifications";
+import {
+  useOrderRealtime,
+  useOrders,
+  useOrderStats,
+  useUpdateOrderStatus,
+} from "../../hooks/useOrders";
 import { OrderStatus } from "../../lib/supabase";
 
 const { width } = Dimensions.get("window");
@@ -52,7 +52,10 @@ export default function DashboardScreen() {
     setRefreshing(false);
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+  const handleStatusUpdate = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
     try {
       await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
     } catch (error) {

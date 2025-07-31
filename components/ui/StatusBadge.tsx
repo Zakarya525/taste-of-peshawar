@@ -1,56 +1,56 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors, Theme } from '../../constants/Colors';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Colors, Theme } from "../../constants/Colors";
 
 interface StatusBadgeProps {
-  status: 'New' | 'Preparing' | 'Ready' | 'Completed';
-  size?: 'small' | 'medium' | 'large';
+  status: "New" | "Preparing" | "Ready" | "Completed";
+  size?: "small" | "medium" | "large";
   showIcon?: boolean;
   animated?: boolean;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,
-  size = 'medium',
+  size = "medium",
   showIcon = true,
   animated = false,
 }) => {
   const getStatusConfig = () => {
     switch (status) {
-      case 'New':
+      case "New":
         return {
           color: Colors.primary[500],
           backgroundColor: Colors.primary[50],
-          icon: 'add-circle',
-          text: 'New',
+          icon: "add-circle",
+          text: "New",
         };
-      case 'Preparing':
+      case "Preparing":
         return {
           color: Colors.warning[500],
           backgroundColor: Colors.warning[50],
-          icon: 'time',
-          text: 'Preparing',
+          icon: "time",
+          text: "Preparing",
         };
-      case 'Ready':
+      case "Ready":
         return {
           color: Colors.success[500],
           backgroundColor: Colors.success[50],
-          icon: 'checkmark-circle',
-          text: 'Ready',
+          icon: "checkmark-circle",
+          text: "Ready",
         };
-      case 'Completed':
+      case "Completed":
         return {
           color: Colors.neutral[500],
           backgroundColor: Colors.neutral[100],
-          icon: 'checkmark-done',
-          text: 'Completed',
+          icon: "checkmark-done",
+          text: "Completed",
         };
       default:
         return {
           color: Colors.neutral[500],
           backgroundColor: Colors.neutral[100],
-          icon: 'help-circle',
+          icon: "help-circle",
           text: status,
         };
     }
@@ -60,21 +60,21 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
   const getSizeConfig = () => {
     switch (size) {
-      case 'small':
+      case "small":
         return {
           padding: Theme.spacing.xs,
           fontSize: Theme.typography.fontSize.xs,
           iconSize: 12,
           borderRadius: Theme.borderRadius.sm,
         };
-      case 'medium':
+      case "medium":
         return {
           padding: Theme.spacing.sm,
           fontSize: Theme.typography.fontSize.sm,
           iconSize: 14,
           borderRadius: Theme.borderRadius.md,
         };
-      case 'large':
+      case "large":
         return {
           padding: Theme.spacing.md,
           fontSize: Theme.typography.fontSize.md,
@@ -131,14 +131,14 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   icon: {
     marginRight: Theme.spacing.xs,
   },
   text: {
-    textAlign: 'center',
+    textAlign: "center",
   },
-}); 
+});
