@@ -32,11 +32,15 @@ export default function LoginScreen() {
     }
 
     setIsLoading(true);
+    console.log('Attempting login for:', email, 'branch:', selectedBranch);
     const { error } = await signIn(email, password, selectedBranch);
     setIsLoading(false);
 
     if (error) {
+      console.error('Login error:', error);
       Alert.alert('Login Failed', error.message || 'Please check your credentials');
+    } else {
+      console.log('Login successful, redirect should happen automatically');
     }
   };
 

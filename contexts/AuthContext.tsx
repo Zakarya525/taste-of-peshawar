@@ -94,8 +94,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(session?.user ?? null);
 
       if (session?.user) {
+        console.log("Session user found, fetching branch user...");
         await fetchBranchUser(session.user.id);
       } else {
+        console.log("No session user, clearing branch data");
         setBranchUser(null);
         setBranch(null);
       }
@@ -202,6 +204,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Update state with the fetched data
       setBranchUser(branchUserData);
       setBranch(branchUserData.branches);
+
+      console.log("SignIn successful - Branch user set:", branchUserData.full_name);
+      console.log("Branch set:", branchUserData.branches.name);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
