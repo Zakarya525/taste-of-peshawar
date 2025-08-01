@@ -96,17 +96,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (session?.user) {
         console.log("Session user found, fetching branch user...");
         await fetchBranchUser(session.user.id);
-      } else {
-        console.log("No session user, clearing branch data");
+      } else if (event === "SIGNED_OUT") {
+        // Only clear branch data on explicit sign out
+        console.log("User signed out, clearing branch data");
         setBranchUser(null);
         setBranch(null);
       }
+      // Don't clear branch data for other events like token refresh
     });
 
-    return () => subscription.unsubscribe();
+    // Set up periodic refresh of branch user data (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      if (session?.user && !branchUser) {
+        console.log("Periodic refresh: Fetching branch user data...");
+        fetchBranchUser(session.user.id);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(refreshInterval);
+    };
   }, [bypassAuth]);
 
-  const fetchBranchUser = async (userId: string) => {
+  const fetchBranchUser = async (userId: string, retryCount = 0) => {
     try {
       const { data, error } = await supabase
         .from("branch_users")
@@ -122,7 +135,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (error) {
         console.error("Supabase error:", error);
-        throw error;
+        // Don't throw error - just log it and keep the session
+        // This allows the user to stay logged in even if branch data is temporarily unavailable
+        console.log("Branch user data unavailable, but keeping session active");
+
+        // Retry up to 3 times with exponential backoff
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+          console.log(
+            `Retrying branch user fetch in ${delay}ms (attempt ${
+              retryCount + 1
+            }/3)`
+          );
+          setTimeout(() => fetchBranchUser(userId, retryCount + 1), delay);
+        }
+        return;
       }
 
       if (data) {
@@ -137,8 +164,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error) {
       console.error("Error fetching branch user:", error);
-      setBranchUser(null);
-      setBranch(null);
+      // Don't clear branch user data on error - keep existing data if available
+      // This prevents unnecessary logouts when network issues occur
+      console.log("Error fetching branch user, but keeping session active");
+
+      // Retry up to 3 times with exponential backoff
+      if (retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        console.log(
+          `Retrying branch user fetch in ${delay}ms (attempt ${
+            retryCount + 1
+          }/3)`
+        );
+        setTimeout(() => fetchBranchUser(userId, retryCount + 1), delay);
+      }
     }
   };
 
@@ -205,7 +244,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setBranchUser(branchUserData);
       setBranch(branchUserData.branches);
 
-      console.log("SignIn successful - Branch user set:", branchUserData.full_name);
+      console.log(
+        "SignIn successful - Branch user set:",
+        branchUserData.full_name
+      );
       console.log("Branch set:", branchUserData.branches.name);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -236,7 +278,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const refreshBranchUser = async () => {
     if (user) {
+      console.log("Refreshing branch user data...");
       await fetchBranchUser(user.id);
+    } else {
+      console.log("No user available for branch user refresh");
     }
   };
 

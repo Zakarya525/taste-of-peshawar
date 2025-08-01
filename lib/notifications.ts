@@ -8,6 +8,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -18,35 +20,65 @@ export class NotificationService {
   static async registerForPushNotificationsAsync() {
     let token;
 
-    if (Platform.OS === "android") {
-      await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
+    try {
+      if (Platform.OS === "android") {
+        console.log("Setting up Android notification channel...");
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "Default",
+          description: "Default notification channel",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+          enableVibrate: true,
+          enableLights: true,
+          showBadge: true,
+        });
+        console.log("Android notification channel created successfully");
+      }
+    } catch (error) {
+      console.error("Error setting up notification channel:", error);
     }
 
     if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
+      try {
+        console.log("Checking notification permissions...");
+        const { status: existingStatus } =
+          await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
 
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
+        console.log("Current permission status:", existingStatus);
 
-      if (finalStatus !== "granted") {
-        console.log("Failed to get push token for push notification!");
+        if (existingStatus !== "granted") {
+          console.log("Requesting notification permissions...");
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+          console.log("Permission request result:", status);
+        }
+
+        if (finalStatus !== "granted") {
+          console.log("Failed to get push token for push notification!");
+          console.log("Permission status:", finalStatus);
+          return;
+        }
+
+        console.log("Notification permissions granted");
+      } catch (error) {
+        console.error("Error checking/requesting permissions:", error);
         return;
       }
 
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId: process.env.EXPO_PROJECT_ID,
-        })
-      ).data;
+      try {
+        console.log("Getting Expo push token...");
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId: "8777e47b-3e3a-45af-9682-9c9b40cd8b8b",
+          })
+        ).data;
+        console.log("Push token generated successfully");
+      } catch (error) {
+        console.error("Error getting push token:", error);
+        return;
+      }
 
       // Store device ID for filtering
       this.currentDeviceId =
@@ -97,16 +129,21 @@ export class NotificationService {
 
     console.log("Sending push notification:", title);
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        data,
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-      },
-      trigger: null, // Send immediately
-    });
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data,
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: null, // Send immediately
+      });
+      console.log("Notification scheduled successfully");
+    } catch (error) {
+      console.error("Error scheduling notification:", error);
+    }
   }
 
   static async cancelAllNotifications() {

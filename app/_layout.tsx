@@ -1,4 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
@@ -39,25 +40,52 @@ function RootLayoutNav() {
     }
   }, [session, user]);
 
+  // Set up notification listeners
+  useEffect(() => {
+    const notificationListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log("Notification received in foreground:", notification);
+      }
+    );
+
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("Notification response received:", response);
+        // Handle notification tap here if needed
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
   // Handle authentication redirects
   useEffect(() => {
     if (!loading) {
-      const isAuthenticated = session && user && branchUser;
-      
+      // Check if user has a valid session and user data
+      const hasValidSession = session && user;
+      const hasCompleteAuth = session && user && branchUser;
+
       console.log("Auth state:", {
         session: !!session,
         user: !!user,
         branchUser: !!branchUser,
-        isAuthenticated,
+        hasValidSession,
+        hasCompleteAuth,
       });
 
-      if (isAuthenticated) {
-        // User is authenticated, redirect to dashboard
+      if (hasCompleteAuth) {
+        // User is fully authenticated, redirect to dashboard
         console.log("Redirecting to dashboard...");
         router.replace("/(tabs)/dashboard");
+      } else if (hasValidSession) {
+        // User has valid session but branch user data is still loading
+        // Don't redirect to login - let the branch user data load
+        console.log("Valid session found, waiting for branch user data...");
       } else {
-        // User is not authenticated, redirect to login
-        console.log("Redirecting to login...");
+        // No valid session, redirect to login
+        console.log("No valid session, redirecting to login...");
         router.replace("/login");
       }
     }
@@ -66,9 +94,6 @@ function RootLayoutNav() {
   if (loading) {
     return <LoadingScreen message="Initializing..." />;
   }
-
-  // Check if we have a complete authenticated state
-  const isAuthenticated = session && user && branchUser;
 
   return (
     <Stack>
