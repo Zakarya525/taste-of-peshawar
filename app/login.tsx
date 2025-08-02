@@ -1,53 +1,66 @@
-import React, { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
   Alert,
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Dimensions,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
+import { useAuth } from "../contexts/AuthContext";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState<'Cardiff' | 'Wembley' | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState<
+    "Cardiff" | "Wembley" | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password || !selectedBranch) {
-      Alert.alert('Error', 'Please fill in all fields and select a branch');
+      Alert.alert("Error", "Please fill in all fields and select a branch");
       return;
     }
 
     setIsLoading(true);
-    console.log('Attempting login for:', email, 'branch:', selectedBranch);
+    console.log("Attempting login for:", email, "branch:", selectedBranch);
     const { error } = await signIn(email, password, selectedBranch);
     setIsLoading(false);
 
     if (error) {
-      console.error('Login error:', error);
-      Alert.alert('Login Failed', error.message || 'Please check your credentials');
+      console.error("Login error:", error);
+      Alert.alert(
+        "Login Failed",
+        error.message || "Please check your credentials"
+      );
     } else {
-      console.log('Login successful, redirect should happen automatically');
+      console.log("Login successful, redirect should happen automatically");
     }
   };
 
-  const BranchButton = ({ branch, name, color }: { branch: 'Cardiff' | 'Wembley'; name: string; color: string }) => (
+  const BranchButton = ({
+    branch,
+    name,
+    color,
+  }: {
+    branch: "Cardiff" | "Wembley";
+    name: string;
+    color: string;
+  }) => (
     <Button
       title={name}
-      variant={selectedBranch === branch ? 'primary' : 'outline'}
+      variant={selectedBranch === branch ? "primary" : "outline"}
       size="large"
       fullWidth
       style={[styles.branchButton, { borderColor: color }]}
@@ -58,7 +71,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -88,12 +101,18 @@ export default function LoginScreen() {
 
             <View style={styles.formContainer}>
               <Text style={styles.sectionTitle}>Login Details</Text>
-              
+
               <View style={styles.inputContainer}>
-                <Ionicons name="mail" size={20} color="#64748b" style={styles.inputIcon} />
+                <Ionicons
+                  name="mail"
+                  size={20}
+                  color="#64748b"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
+                  placeholderTextColor="#94a3b8"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -103,10 +122,16 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed" size={20} color="#64748b" style={styles.inputIcon} />
+                <Ionicons
+                  name="lock-closed"
+                  size={20}
+                  color="#64748b"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
+                  placeholderTextColor="#94a3b8"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -139,43 +164,43 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: "#f8fafc",
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   logoContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#eff6ff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#eff6ff",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontWeight: "bold",
+    color: "#1e293b",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748b',
+    color: "#64748b",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 16,
   },
   branchContainer: {
@@ -191,9 +216,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f1f5f9",
     borderRadius: 12,
     marginBottom: 16,
     paddingHorizontal: 16,
@@ -205,18 +230,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1e293b',
+    color: "#1e293b",
   },
   loginButton: {
     marginTop: 8,
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 40,
   },
   footerText: {
     fontSize: 14,
-    color: '#64748b',
-    textAlign: 'center',
+    color: "#64748b",
+    textAlign: "center",
   },
-}); 
+});
