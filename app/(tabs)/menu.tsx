@@ -268,7 +268,7 @@ export default function MenuScreen() {
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <View style={styles.loadingSpinner}>
-              <Ionicons name="restaurant" size={32} color="#4f46e5" />
+              <Ionicons name="restaurant" size={32} color="#e34691" />
             </View>
             <Text style={styles.loadingText}>Loading menu...</Text>
           </View>

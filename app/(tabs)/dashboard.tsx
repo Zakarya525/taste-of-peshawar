@@ -66,7 +66,7 @@ export default function DashboardScreen() {
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case "New":
-        return "#3b82f6";
+        return "#e34691";
       case "Preparing":
         return "#f59e0b";
       case "Ready":
@@ -146,7 +146,11 @@ export default function DashboardScreen() {
   };
 
   const OrderCard = ({ order }: { order: any }) => (
-    <View style={styles.orderCardContainer}>
+    <TouchableOpacity
+      style={styles.orderCardContainer}
+      onPress={() => router.push(`/order-details?id=${order.id}`)}
+      activeOpacity={0.7}
+    >
       <Card variant="default" padding="none" style={styles.orderCard}>
         <View style={styles.orderCardInner}>
           <View style={styles.orderHeader}>
@@ -206,13 +210,6 @@ export default function DashboardScreen() {
               </Text>
             </View>
             <View style={styles.orderActions}>
-              <Button
-                title="View Details"
-                variant="outline"
-                size="small"
-                onPress={() => router.push(`/order-details?id=${order.id}`)}
-                style={styles.viewButton}
-              />
               {order.status === "New" && (
                 <Button
                   title="Start Preparing"
@@ -235,7 +232,7 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Card>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -249,18 +246,18 @@ export default function DashboardScreen() {
                 <Text style={styles.greeting}>Welcome back!</Text>
                 <View style={styles.branchContainer}>
                   <Text style={styles.branchName}>
-                    Taste of Peshawar - {branch?.name}
+                    Taste of Peshawar -{" "}
+                    {branch?.name === "Wembley" ? "BlackBurn" : branch?.name}
                   </Text>
-                  <View style={styles.liveDot} />
                 </View>
               </View>
             </View>
             <View style={styles.headerRight}>
               <TouchableOpacity
                 style={styles.refreshButton}
-                onPress={() => onRefresh()}
+                onPress={() => router.push("/(tabs)/settings")}
               >
-                <Ionicons name="refresh" size={20} color="#ffffff" />
+                <Ionicons name="settings-outline" size={20} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -280,52 +277,44 @@ export default function DashboardScreen() {
       >
         {/* Enhanced Stats Cards */}
         <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Order Overview</Text>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.statsContainer}>
-            <Card variant="flat" padding="none" style={styles.statCard}>
+            <TouchableOpacity
+              style={styles.statCard}
+              onPress={() => router.push("/(tabs)/menu")}
+            >
               <View style={styles.statContent}>
                 <View
                   style={[
                     styles.statIconContainer,
-                    { backgroundColor: "#3b82f615" },
+                    { backgroundColor: "#e3469115" },
                   ]}
                 >
-                  <Ionicons name="add-circle" size={20} color="#3b82f6" />
+                  <Ionicons name="add-circle" size={30} color="#e34691" />
                 </View>
-                <Text style={styles.statNumber}>{stats?.new || 0}</Text>
-                <Text style={styles.statLabel}>New Orders</Text>
+                <Text style={styles.statNumber}>Take New Order</Text>
+                <Text style={styles.statLabel}>
+                  {stats?.new || 0} New Orders
+                </Text>
               </View>
-            </Card>
-
-            <Card variant="flat" padding="none" style={styles.statCard}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.statCard}
+              onPress={() => router.push("/(tabs)/orders")}
+            >
               <View style={styles.statContent}>
                 <View
                   style={[
                     styles.statIconContainer,
-                    { backgroundColor: "#f59e0b15" },
+                    { backgroundColor: "#e3469115" },
                   ]}
                 >
-                  <Ionicons name="time" size={20} color="#f59e0b" />
+                  <Ionicons name="restaurant" size={30} color="#e34691" />
                 </View>
-                <Text style={styles.statNumber}>{stats?.preparing || 0}</Text>
-                <Text style={styles.statLabel}>Preparing</Text>
+                <Text style={styles.statNumber}>Kitchen View</Text>
+                <Text style={styles.statLabel}>{stats?.total || 0} Orders</Text>
               </View>
-            </Card>
-
-            <Card variant="flat" padding="none" style={styles.statCard}>
-              <View style={styles.statContent}>
-                <View
-                  style={[
-                    styles.statIconContainer,
-                    { backgroundColor: "#10b98115" },
-                  ]}
-                >
-                  <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-                </View>
-                <Text style={styles.statNumber}>{stats?.ready || 0}</Text>
-                <Text style={styles.statLabel}>Ready</Text>
-              </View>
-            </Card>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -575,7 +564,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   statNumber: {
-    fontSize: 28,
+    fontSize: 16,
     fontWeight: "800",
     color: "#1e293b",
     marginBottom: 4,

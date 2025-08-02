@@ -187,133 +187,134 @@ export default function OrdersScreen() {
         15 * 60 * 1000; // 15 minutes
 
     return (
-      <Card
-        variant="default"
-        padding="none"
-        margin="small"
-        style={[styles.orderCard, isUrgent && styles.urgentCard]}
+      <TouchableOpacity
+        onPress={() => router.push(`/order-details?id=${order.id}`)}
+        activeOpacity={0.7}
       >
-        {/* Status Bar */}
-        <View
-          style={[styles.statusBar, { backgroundColor: statusConfig.color }]}
-        />
+        <Card
+          variant="default"
+          padding="none"
+          margin="small"
+          style={[styles.orderCard, isUrgent && styles.urgentCard]}
+        >
+          {/* Status Bar */}
+          <View
+            style={[styles.statusBar, { backgroundColor: statusConfig.color }]}
+          />
 
-        <View style={styles.cardContent}>
-          {/* Header Section */}
-          <View style={styles.orderHeader}>
-            <View style={styles.orderMeta}>
-              <Text style={styles.orderNumber}>#{order.order_number}</Text>
-              <View style={styles.orderSubMeta}>
-                <View style={styles.tableInfo}>
-                  <Ionicons
-                    name="restaurant"
-                    size={14}
-                    color={Colors.text.tertiary}
-                  />
-                  <Text style={styles.tableNumber}>
-                    Table {order.table_number}
-                  </Text>
-                </View>
-                <View style={styles.timeInfo}>
-                  <Ionicons
-                    name="time"
-                    size={14}
-                    color={isUrgent ? Colors.error[500] : Colors.text.tertiary}
-                  />
-                  <Text
-                    style={[
-                      styles.orderTime,
-                      isUrgent && {
-                        color: Colors.error[500],
-                        fontWeight: "600",
-                      },
-                    ]}
-                  >
-                    {timeAgo}
-                  </Text>
+          <View style={styles.cardContent}>
+            {/* Header Section */}
+            <View style={styles.orderHeader}>
+              <View style={styles.orderMeta}>
+                <Text style={styles.orderNumber}>#{order.order_number}</Text>
+                <View style={styles.orderSubMeta}>
+                  <View style={styles.tableInfo}>
+                    <Ionicons
+                      name="restaurant"
+                      size={14}
+                      color={Colors.text.tertiary}
+                    />
+                    <Text style={styles.tableNumber}>
+                      Table {order.table_number}
+                    </Text>
+                  </View>
+                  <View style={styles.timeInfo}>
+                    <Ionicons
+                      name="time"
+                      size={14}
+                      color={
+                        isUrgent ? Colors.error[500] : Colors.text.tertiary
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.orderTime,
+                        isUrgent && {
+                          color: Colors.error[500],
+                          fontWeight: "600",
+                        },
+                      ]}
+                    >
+                      {timeAgo}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            <View
-              style={[
-                styles.statusChip,
-                { backgroundColor: statusConfig.backgroundColor },
-              ]}
-            >
-              <Ionicons
-                name={statusConfig.icon}
-                size={16}
-                color={statusConfig.color}
-              />
-              <Text style={[styles.statusText, { color: statusConfig.color }]}>
-                {order.status}
-              </Text>
-            </View>
-          </View>
-
-          {/* Order Summary */}
-          <View style={styles.orderSummary}>
-            <View style={styles.summaryItem}>
-              <Ionicons name="list" size={16} color={Colors.text.tertiary} />
-              <Text style={styles.itemCount}>{order.item_count} items</Text>
-            </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Ionicons name="card" size={16} color={Colors.success[500]} />
-              <Text style={styles.orderTotal}>
-                {formatPrice(order.total_amount)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Notes Section */}
-          {order.notes && (
-            <View style={styles.notesContainer}>
-              <View style={styles.notesHeader}>
+              <View
+                style={[
+                  styles.statusChip,
+                  { backgroundColor: statusConfig.backgroundColor },
+                ]}
+              >
                 <Ionicons
-                  name="document-text"
-                  size={14}
-                  color={Colors.warning[600]}
+                  name={statusConfig.icon}
+                  size={16}
+                  color={statusConfig.color}
                 />
-                <Text style={styles.notesLabel}>Special Instructions</Text>
+                <Text
+                  style={[styles.statusText, { color: statusConfig.color }]}
+                >
+                  {order.status}
+                </Text>
               </View>
-              <Text style={styles.notesText}>{order.notes}</Text>
             </View>
-          )}
 
-          {/* Action Buttons */}
-          <View style={styles.orderActions}>
-            <Button
-              title="View Details"
-              variant="outline"
-              size="small"
-              onPress={() => router.push(`/order-details?id=${order.id}`)}
-              style={styles.detailsButton}
-            />
+            {/* Order Summary */}
+            <View style={styles.orderSummary}>
+              <View style={styles.summaryItem}>
+                <Ionicons name="list" size={16} color={Colors.text.tertiary} />
+                <Text style={styles.itemCount}>{order.item_count} items</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryItem}>
+                <Ionicons name="card" size={16} color={Colors.success[500]} />
+                <Text style={styles.orderTotal}>
+                  {formatPrice(order.total_amount)}
+                </Text>
+              </View>
+            </View>
 
-            {order.status === "New" && (
-              <Button
-                title="Start Preparing"
-                variant="primary"
-                size="small"
-                onPress={() => handleStatusUpdate(order.id, "Preparing")}
-                style={styles.actionButton}
-              />
+            {/* Notes Section */}
+            {order.notes && (
+              <View style={styles.notesContainer}>
+                <View style={styles.notesHeader}>
+                  <Ionicons
+                    name="document-text"
+                    size={14}
+                    color={Colors.warning[600]}
+                  />
+                  <Text style={styles.notesLabel}>Special Instructions</Text>
+                </View>
+                <Text style={styles.notesText}>{order.notes}</Text>
+              </View>
             )}
 
-            {order.status === "Preparing" && (
-              <Button
-                title="Mark Ready"
-                variant="primary"
-                size="small"
-                onPress={() => handleStatusUpdate(order.id, "Ready")}
-                style={styles.actionButton}
-              />
-            )}
+            {/* Action Buttons */}
+            <View style={styles.orderActions}>
+              {order.status === "New" && (
+                <Button
+                  title="Start Preparing"
+                  variant="primary"
+                  size="small"
+                  onPress={() => handleStatusUpdate(order.id, "Preparing")}
+                  style={styles.actionButton}
+                />
+              )}
+
+              {order.status === "Preparing" && (
+                <Button
+                  title="Mark Ready"
+                  variant="primary"
+                  size="small"
+                  onPress={() => handleStatusUpdate(order.id, "Ready")}
+                  style={styles.actionButton}
+                />
+              )}
+            </View>
           </View>
-        </View>
-      </Card>
+        </Card>
+      </TouchableOpacity>
     );
   };
 

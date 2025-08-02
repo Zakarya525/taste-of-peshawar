@@ -15,8 +15,8 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: Colors.border.light,
           paddingBottom: 8,
-          paddingTop: 8,
-          height: 88,
+          height: 120,
+          paddingTop: 15,
         },
         headerShown: false,
       }}
@@ -51,7 +51,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: "Notifications",
+          title: "Updates",
           tabBarIcon: ({ color, size }) => (
             <View style={{ position: "relative" }}>
               <Ionicons name="notifications" size={size} color={color} />

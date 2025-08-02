@@ -94,7 +94,7 @@ export default function LoginScreen() {
               <View style={styles.branchSpacer} />
               <BranchButton
                 branch="Wembley"
-                name="Wembley Branch"
+                name="BlackBurn Branch"
                 color="#10b981"
               />
             </View>
@@ -112,7 +112,6 @@ export default function LoginScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
-                  placeholderTextColor="#94a3b8"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -131,7 +130,6 @@ export default function LoginScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
-                  placeholderTextColor="#94a3b8"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry

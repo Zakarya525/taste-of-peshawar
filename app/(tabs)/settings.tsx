@@ -112,7 +112,9 @@ export default function SettingsScreen() {
                 {branchUser?.full_name || "User"}
               </Text>
               <Text style={styles.userRole}>{branchUser?.role || "Staff"}</Text>
-              <Text style={styles.userBranch}>{branch?.name} Branch</Text>
+              <Text style={styles.userBranch}>
+                {branch?.name === "Wembley" ? "BlackBurn" : branch?.name} Branch
+              </Text>
             </View>
           </View>
         </Card>
@@ -186,7 +188,7 @@ export default function SettingsScreen() {
           <SettingItem
             icon="information-circle"
             title="App Version"
-            subtitle="1.0.0"
+            subtitle="2.1.0"
             showArrow={false}
           />
           <SettingItem
